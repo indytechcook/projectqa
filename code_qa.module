@@ -1,0 +1,31 @@
+<?php
+
+
+module_load_include('inc', 'code_qa', 'code_qa.admin');
+module_load_include('inc', 'code_qa', 'code_qa.phploc');
+
+/**
+ * Implements hook_menu()
+ */
+function code_qa_menu() {
+  $items = array();
+
+  $items['admin/code_qa'] = array(
+    'title' => 'Code QA',
+    'access callback' => TRUE,
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('code_qa_admin_page'),
+    'type' => MENU_CALLBACK,
+  );
+
+ $items['admin/code_qa/phploc'] = array(
+    'title' => 'Code QA: PHPLOC',
+    'access callback' => TRUE,
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('code_qa_phploc_report_page'),
+    'type' => MENU_CALLBACK,
+  );
+
+  return $items;
+}
+

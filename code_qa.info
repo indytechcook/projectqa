@@ -1,0 +1,9 @@
+name = Code QA
+description = Assist in the evaluation of module code
+core = 7.x
+package = Development
+
+dependencies[] = entity
+dependencies[] = phploc_result
+
+files[] = code_qa.admin.inc
