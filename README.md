@@ -1,6 +1,6 @@
 # Code QA
 
-Tools to monitor the code of your Drupal site.
+Tools to monitor the code of your Drupal site. Inspired by this Drupalcon Portland session: https://portland2013.drupal.org/node/1078
 
 ## Setup
 
