@@ -39,15 +39,8 @@ function code_qa_download_phploc() {
  *
  */
 function code_qa_run_phploc() {
-
-  // TODO: Don't clear out records
-  // Temporarily clear out the db and start over each pageload
-  db_delete('phploc_result')->execute();
-
   code_qa_generate_phploc_resultset();
-
   drupal_set_message(t('The PHPLOC tests have been run'));
-
   drupal_goto('admin/code_qa');
 }
 
@@ -192,7 +185,6 @@ function code_qa_save_phploc_resultset($module_name, $data) {
  */
 function code_quality_generate_phploc_result_table() {
 
-
   $results_map = code_qa_get_phploc_result_map();
   $header = array(
     array(
@@ -246,7 +238,13 @@ function code_quality_generate_phploc_result_table() {
   );
 
 
-  //TODO: Only select most recent record
+
+  //TODO: Can't do LIMIT in a subquery in MySQL?
+  $subresult = db_query('SELECT MAX(prid) as prid FROM phploc_result GROUP BY module ORDER BY MAX(prid) DESC');
+  $subresult = $subresult->fetchAllAssoc('prid');
+
+  $ids = array_keys($subresult);
+
   $query = db_select('phploc_result', 'pr')
     ->fields('pr',
       array(
@@ -263,6 +261,7 @@ function code_quality_generate_phploc_result_table() {
         'constants',
         'global_constants',
       ))
+    ->condition('prid', $ids, 'IN')
     ->extend('TableSort');
   $result = $query->orderByHeader($header)->execute();
 
@@ -305,10 +304,16 @@ function code_qa_phploc_report_module_page($form, &$form_state, $module_name) {
   );
 
 
-  //TODO: order by timestamp, pick top 1
+  //TODO: Not efficient, just copied from above for now
+  $subresult = db_query('SELECT MAX(prid) as prid FROM phploc_result GROUP BY module ORDER BY MAX(prid) DESC');
+  $subresult = $subresult->fetchAllAssoc('prid');
+
+  $ids = array_keys($subresult);
+
   $results = db_select('phploc_result', 'pr')
     ->fields('pr')
     ->condition('module', $module_name, '=')
+    ->condition('prid', $ids, 'IN')
     ->execute()
     ->fetchAssoc();
 
