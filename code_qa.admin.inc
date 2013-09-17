@@ -16,14 +16,20 @@ function code_qa_admin_page($form, &$form_state) {
     '#tree' => TRUE,
   );
 
-  $phploc_action = array();
+  $phploc_actions = array();
   if(code_qa_detect_phploc()) {
     $phploc_status = t('found');
-    $phploc_action = array(
+    $phploc_actions['run'] = array(
       '#type' => 'submit',
       '#value' => t('Run PHPLOC'),
       '#submit' => array('code_qa_run_phploc'),
     );
+    $phploc_actions['view'] = array(
+      '#type' => 'submit',
+      '#value' => t('View results'),
+      '#submit' => array('code_qa_view_phploc'),
+    );
+
   }
   else {
     $phploc_status = t('MISSING');
@@ -41,7 +47,7 @@ function code_qa_admin_page($form, &$form_state) {
     '#suffix' => '</div>',
   );
 
-  $form['phploc']['action'] = $phploc_action;
+  $form['phploc']['action'] = $phploc_actions;
 
 
   return $form;

@@ -31,7 +31,7 @@ function code_qa_download_phploc() {
   //
   // exec('wget -P ' . $dir . ' https://phar.phpunit.de/phploc.phar');
   // exec('chmod a+x ' . $dir . '/phploc.phar');
-  
+
 }
 
 
@@ -39,6 +39,23 @@ function code_qa_download_phploc() {
  *
  */
 function code_qa_run_phploc() {
+
+  // TODO: Don't clear out records
+  // Temporarily clear out the db and start over each pageload
+  db_delete('phploc_result')->execute();
+
+  code_qa_generate_phploc_resultset();
+
+  drupal_set_message(t('The PHPLOC tests have been run'));
+
+  drupal_goto('admin/code_qa');
+}
+
+
+/**
+ *
+ */
+function code_qa_view_phploc() {
   drupal_goto('admin/code_qa/phploc');
 }
 
@@ -55,12 +72,6 @@ function code_qa_phploc_report_page($form, &$form_state) {
     '#prefix' => '<ul>',
     '#suffix' => '</ul>',
   );
-
-  // TODO: Don't clear out records
-  // Temporarily clear out the db and start over each pageload
-  db_delete('phploc_result')->execute();
-
-  code_qa_generate_phploc_resultset();
 
   $table = code_quality_generate_phploc_result_table();
 
@@ -113,8 +124,8 @@ function code_qa_generate_phploc_resultset() {
  */
 function code_qa_get_phploc_result_map() {
   $map = array(
-     // 'directories' => t('Directories'),
-     // 'files' => t('Files'),
+     'directories' => t('(Sub) Directories'),
+     'files' => t('Files'),
      'loc' => t('Lines of Code'),
      'cc_loc' => t('Complexity/Lines'),
      'commented_loc' => t('Commented Lines of Code'),
@@ -162,16 +173,11 @@ function code_qa_get_phploc_result_map() {
  * Saves the PHPLOC result as an entity
  */
 function code_qa_save_phploc_resultset($module_name, $data) {
-  
-  $keys = array(
-    'directories' => t('Directories'),
-    'files' => t('Files'),
-  );
 
-  $keys += array_keys(code_qa_get_phploc_result_map());
-    
+  $keys = array_keys(code_qa_get_phploc_result_map());
+
   $values = explode(',', $data);
-  
+
   $phploc_data = array_combine($keys, $values);
   $phploc_data['module'] = $module_name;
   $phploc_data['timestamp'] = time();
@@ -185,27 +191,158 @@ function code_qa_save_phploc_resultset($module_name, $data) {
  * Generate result table
  */
 function code_quality_generate_phploc_result_table() {
-  $results = db_select('phploc_result', 'pr')
-    ->fields('pr')
-    ->execute()
-    ->fetchAllAssoc('prid', PDO::FETCH_ASSOC);
 
+
+  $results_map = code_qa_get_phploc_result_map();
   $header = array(
-    'module' => t('Module'),
-    'timestamp' => t('Timestamp'),
+    array(
+      'data' => t('Module'),
+      'field' => 'pr.module',
+    ),
+    array(
+      'data' => $results_map['directories'],
+      'field' => 'pr.directories',
+    ),
+    array(
+      'data' => $results_map['files'],
+      'field' => 'pr.files',
+    ),
+    array(
+      'data' => $results_map['loc'],
+      'field' => 'pr.loc',
+    ),
+    array(
+      'data' => $results_map['lloc'],
+      'field' => 'pr.lloc',
+    ),
+    array(
+      'data' => $results_map['commented_loc'],
+      'field' => 'pr.commented_loc',
+    ),
+    array(
+      'data' => $results_map['cc_loc'],
+      'field' => 'pr.cc_loc',
+    ),
+    array(
+      'data' => $results_map['methods'],
+      'field' => 'pr.methods',
+    ),
+    array(
+      'data' => $results_map['cc_methods'],
+      'field' => 'pr.cc_methods',
+    ),
+    array(
+      'data' => $results_map['method_calls'],
+      'field' => 'pr.method_calls',
+    ),
+    array(
+      'data' => $results_map['constants'],
+      'field' => 'pr.constants',
+    ),
+    array(
+      'data' => $results_map['global_constants'],
+      'field' => 'pr.global_constants',
+    ),
   );
 
-  $header += code_qa_get_phploc_result_map();
+
+  //TODO: Only select most recent record
+  $query = db_select('phploc_result', 'pr')
+    ->fields('pr',
+      array(
+        'module',
+        'directories',
+        'files',
+        'loc',
+        'lloc',
+        'commented_loc',
+        'cc_loc',
+        'methods',
+        'cc_methods',
+        'method_calls',
+        'constants',
+        'global_constants',
+      ))
+    ->extend('TableSort');
+  $result = $query->orderByHeader($header)->execute();
+
+  $header += array(
+    array(
+      'data' => 'test',
+      'field' => 'test',
+    ),
+  );
+
+  $rows = array();
+  foreach ($result as $row) {
+    $row->module = l($row->module, 'admin/code_qa/phploc/' . $row->module);
+    $rows[] = array('data' => (array) $row);
+  }
 
 
-  $results_table['table'] = array(
-    '#type' => 'tableselect',
+
+  $results_table['tablesort_table'] = array(
+    '#theme' => 'table',
     '#header' => $header,
-    '#options' => $results,
-    '#multiple' => FALSE,
+    '#rows' => $rows,
   );
 
   return $results_table;
 }
 
 
+/**
+ *
+ */
+function code_qa_phploc_report_module_page($form, &$form_state, $module_name) {
+  $form = array();
+
+  $form['list'] = array(
+    '#type' => 'markup',
+    '#markup' => $module_name,
+    '#prefix' => '<h2>',
+    '#suffix' => '</h2>',
+  );
+
+
+  //TODO: order by timestamp, pick top 1
+  $results = db_select('phploc_result', 'pr')
+    ->fields('pr')
+    ->condition('module', $module_name, '=')
+    ->execute()
+    ->fetchAssoc();
+
+  $form['current_stats'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Current stats'),
+    '#tree' => TRUE,
+  );
+
+  $keys = array_keys($results);
+  $labels = code_qa_get_phploc_result_map();
+
+  foreach ($keys as $key) {
+
+    if ($key == 'prid' || $key == 'module' || $key == 'timestamp') {
+      continue;
+    }
+    $form['current_stats'][$key] = array(
+      '#type' => 'markup',
+      '#prefix' => '<div>',
+      '#suffix' => '</div>',
+    );
+    $form['current_stats'][$key]['label'] = array(
+      '#type' => 'markup',
+      '#markup' => $labels[$key] . ': ',
+      '#prefix' => '<strong>',
+      '#suffix' => '</strong>',
+    );
+    $form['current_stats'][$key]['value'] = array(
+      '#type' => 'markup',
+      '#markup' => $results[$key],
+    );
+  }
+
+
+  return $form;
+}

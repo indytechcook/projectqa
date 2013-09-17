@@ -26,6 +26,15 @@ function code_qa_menu() {
     'type' => MENU_CALLBACK,
   );
 
+  $items['admin/code_qa/phploc/%'] = array(
+  'title' => 'Code QA: PHPLOC Details',
+  'access callback' => TRUE,
+  'page arguments' => array(1),
+  'page callback' => 'drupal_get_form',
+  'page arguments' => array('code_qa_phploc_report_module_page', 3),
+  'type' => MENU_CALLBACK,
+);
+
   return $items;
 }
 
