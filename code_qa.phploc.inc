@@ -358,20 +358,58 @@ function code_qa_phploc_report_module_page($form, &$form_state, $module_name) {
 
   $form['graph'] = array(
     '#type' => 'fieldset',
-    '#title' => t('History'),
+    '#title' => t('History: Lines of Code'),
     '#tree' => TRUE,
-    '#prefix' => '<div style="margin-left: 370px; margin-top: 23px;">',
+    '#prefix' => '<div style="margin-left: 370px;">',
     '#suffix' => '</div>',
   );
 
-  $form['graph']['content'] = array(
-    '#type' => 'markup',
-    '#markup' => 'Put graph here',
-    '#prefix' => '<p>',
-    '#suffix' => '</p>',
-  );
-
+  $form['graph']['content'] = code_qa_phploc_graph();
 
   return $form;
-
 }
+
+
+function code_qa_phploc_graph() {
+  $query = db_select('phploc_result', 'pr')
+    ->fields('pr', array('timestamp', 'loc', 'lloc', 'commented_loc', 'non_commented_loc'))
+    ->condition('pr.module', 'code_qa', '=')
+    ->orderBy('timestamp', 'ASC');
+
+  $result = $query->execute()->fetchAllAssoc('timestamp');
+
+  $keys = array();
+  $loc = array();
+  $lloc = array();
+  $commented_loc = array();
+  $non_commented_loc = array();
+  foreach($result as $obj) {
+    $keys[] = $obj->timestamp;
+    $loc[] = $obj->loc;
+    $lloc[] = $obj->lloc;
+    $commented_loc[] = $obj->commented_loc;
+    $non_commented_loc[] = $obj->non_commented_loc;
+  }
+
+  $canvas = charts_graphs_get_graph('flot');
+
+  $canvas->title = "History";
+  $canvas->type = "line";
+  $canvas->y_legend = "Y Legend";
+  $canvas->colour = '#ffffff';
+  // $canvas->theme = 'keynote';
+  $canvas->series = array(
+    'Lines of code' => $loc,
+    'Logical lines of code' => $lloc,
+    'Commented lines of code' => $commented_loc,
+    'Non-commented lines of code' => $non_commented_loc,
+  );
+  $canvas->x_labels = $keys;
+
+  $ret = $canvas->get_chart();
+
+  return $ret;
+}
+
+
+

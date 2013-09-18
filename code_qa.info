@@ -5,5 +5,6 @@ package = Development
 
 dependencies[] = entity
 dependencies[] = phploc_result
+dependencies[] = charts_graphs_flot
 
 files[] = code_qa.admin.inc
