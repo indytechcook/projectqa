@@ -296,7 +296,7 @@ function code_qa_phploc_report_module_page($form, &$form_state, $module_name) {
 
   $form['module_name'] = array(
     '#type' => 'markup',
-    '#markup' => $module_name,
+    '#markup' => t('Module: @mod', array('@mod' => $module_name)),
     '#prefix' => '<h2>',
     '#suffix' => '</h2>',
   );
