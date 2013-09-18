@@ -317,10 +317,15 @@ function code_qa_phploc_report_module_page($form, &$form_state, $module_name) {
     ->execute()
     ->fetchAssoc();
 
+
+
+
   $form['current_stats'] = array(
     '#type' => 'fieldset',
     '#title' => t('Current stats'),
     '#tree' => TRUE,
+    '#prefix' => '<div style="width:350px; float: left;">',
+    '#suffix' => '</div>',
   );
 
   $keys = array_keys($results);
@@ -348,6 +353,22 @@ function code_qa_phploc_report_module_page($form, &$form_state, $module_name) {
     );
   }
 
+  $form['graph'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('History'),
+    '#tree' => TRUE,
+    '#prefix' => '<div style="margin-left: 370px; margin-top: 23px;">',
+    '#suffix' => '</div>',
+  );
+
+  $form['graph']['content'] = array(
+    '#type' => 'markup',
+    '#markup' => 'Put graph here',
+    '#prefix' => '<p>',
+    '#suffix' => '</p>',
+  );
+
 
   return $form;
+
 }
