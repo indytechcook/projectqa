@@ -278,8 +278,6 @@ function code_quality_generate_phploc_result_table() {
     $rows[] = array('data' => (array) $row);
   }
 
-
-
   $results_table['tablesort_table'] = array(
     '#theme' => 'table',
     '#header' => $header,
@@ -296,12 +294,20 @@ function code_quality_generate_phploc_result_table() {
 function code_qa_phploc_report_module_page($form, &$form_state, $module_name) {
   $form = array();
 
-  $form['list'] = array(
+  $form['module_name'] = array(
     '#type' => 'markup',
     '#markup' => $module_name,
     '#prefix' => '<h2>',
     '#suffix' => '</h2>',
   );
+
+  $form['back_link'] = array(
+    '#type' => 'markup',
+    '#markup' => l(t('Back to summary'), 'admin/code_qa/phploc') ,
+    '#prefix' => '<div>',
+    '#suffix' => '</div>',
+  );
+
 
 
   //TODO: Not efficient, just copied from above for now
@@ -316,9 +322,6 @@ function code_qa_phploc_report_module_page($form, &$form_state, $module_name) {
     ->condition('prid', $ids, 'IN')
     ->execute()
     ->fetchAssoc();
-
-
-
 
   $form['current_stats'] = array(
     '#type' => 'fieldset',
