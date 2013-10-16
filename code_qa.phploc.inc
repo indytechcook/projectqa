@@ -68,8 +68,6 @@ function code_qa_generate_phploc_resultset() {
     $output_file = $tmp_directory . '/' . $module_name . '.csv ';
     $t = exec($phploc . $params . $output_file . $module_path);
 
-    drupal_set_message($phploc . $params . $output_file . $module_path);
-
     $form['list'][] = array(
       '#type' => 'markup',
       '#markup' => $module_name . ' - ' . $output_file,
