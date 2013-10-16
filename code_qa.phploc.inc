@@ -4,37 +4,6 @@
  * @file Logic pertaining to PHPLOC
  */
 
-
-define ('PHPLOC', DRUPAL_ROOT . '/sites/all/libraries/phploc.phar');
-
-
-/**
- * Detects whether or not phploc is available
- */
-function code_qa_detect_phploc() {
-  $command = PHPLOC . ' ./';
-
-  $r = exec($command);
-
-  if( exec($command) ) {
-    return TRUE;
-  }
-  return FALSE;
-}
-
-
-/**
- * Downloads the phploc.phar library
- */
-function code_qa_download_phploc() {
-  // $dir = DRUPAL_ROOT . '/' . drupal_get_path('module', 'code_qa');
-  //
-  // exec('wget -P ' . $dir . ' https://phar.phpunit.de/phploc.phar');
-  // exec('chmod a+x ' . $dir . '/phploc.phar');
-
-}
-
-
 /**
  *
  */
@@ -67,7 +36,6 @@ function code_qa_phploc_report_page($form, &$form_state) {
   );
 
   $table = code_quality_generate_phploc_result_table();
-
   $form['table'] = $table;
 
   return $form;
@@ -78,6 +46,10 @@ function code_qa_phploc_report_page($form, &$form_state) {
  * Generates the PHPLOC result set
  */
 function code_qa_generate_phploc_resultset() {
+  composer_manager_register_autoloader();
+
+  $phploc = composer_manager_vendor_dir() . "/bin/phploc";
+
   $module_list = module_list();
 
   $params = ' --names *.php,*.info,*.module,*.install,*.inc --log-csv ';
@@ -94,7 +66,9 @@ function code_qa_generate_phploc_resultset() {
 
     // Run phploc on the module
     $output_file = $tmp_directory . '/' . $module_name . '.csv ';
-    $t = exec(PHPLOC . $params . $output_file . $module_path);
+    $t = exec($phploc . $params . $output_file . $module_path);
+
+    drupal_set_message($phploc . $params . $output_file . $module_path);
 
     $form['list'][] = array(
       '#type' => 'markup',

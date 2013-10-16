@@ -1,0 +1,20 @@
+{
+    "require": {
+        "phploc/phploc": "2.0.2"
+    },
+    "minimum-stability": "dev",
+    "config": {
+        "bin-dir": "bin/"
+    },
+    "repositories": [
+        {
+            "type": "git",
+            "url": "https://github.com/sebastianbergmann/phploc.git"
+        }
+    ],
+    "autoload": {
+        "psr-0": {
+            "Drupal\\CodeQA": "src/"
+        }
+    }
+}
