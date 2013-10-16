@@ -3,9 +3,10 @@ description = Assist in the evaluation of module code
 core = 7.x
 package = Development
 
+dependencies[] = chart
+dependencies[] = composer_manager
 dependencies[] = entity
 dependencies[] = phploc_result
-dependencies[] = charts_graphs_flot
-dependencies[] = composer_manager
+
 
 files[] = code_qa.admin.inc

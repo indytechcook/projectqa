@@ -280,108 +280,67 @@ function code_qa_phploc_report_module_page($form, &$form_state, $module_name) {
     '#suffix' => '</div>',
   );
 
-
-
-  //TODO: Not efficient, just copied from above for now
-  $subresult = db_query('SELECT MAX(prid) as prid FROM phploc_result GROUP BY module ORDER BY MAX(prid) DESC');
-  $subresult = $subresult->fetchAllAssoc('prid');
-
-  $ids = array_keys($subresult);
-
-  $results = db_select('phploc_result', 'pr')
-    ->fields('pr')
-    ->condition('module', $module_name, '=')
-    ->condition('prid', $ids, 'IN')
-    ->execute()
-    ->fetchAssoc();
-
-  $form['current_stats'] = array(
-    '#type' => 'fieldset',
-    '#title' => t('Current stats'),
-    '#tree' => TRUE,
-    '#prefix' => '<div style="width:350px; float: left;">',
-    '#suffix' => '</div>',
-  );
-
-  $keys = array_keys($results);
-  $labels = code_qa_get_phploc_result_map();
-
-  foreach ($keys as $key) {
-
-    if ($key == 'prid' || $key == 'module' || $key == 'timestamp') {
-      continue;
-    }
-    $form['current_stats'][$key] = array(
-      '#type' => 'markup',
-      '#prefix' => '<div>',
-      '#suffix' => '</div>',
-    );
-    $form['current_stats'][$key]['label'] = array(
-      '#type' => 'markup',
-      '#markup' => $labels[$key] . ': ',
-      '#prefix' => '<strong>',
-      '#suffix' => '</strong>',
-    );
-    $form['current_stats'][$key]['value'] = array(
-      '#type' => 'markup',
-      '#markup' => $results[$key],
-    );
-  }
-
-  $form['graph'] = array(
-    '#type' => 'fieldset',
-    '#title' => t('History: Lines of Code'),
-    '#tree' => TRUE,
-    '#prefix' => '<div style="margin-left: 370px;">',
-    '#suffix' => '</div>',
-  );
-
-  $form['graph']['content'] = code_qa_phploc_graph();
+  $form[] = code_qa_phploc_files_dir_history_graph($module_name);
 
   return $form;
 }
 
 
-function code_qa_phploc_graph() {
+function code_qa_phploc_files_dir_history_graph($module_name) {
+  $widget = array(
+    '#type' => 'fieldset',
+    '#title' => t('Files & Directories History'),
+    '#tree' => TRUE,
+  );
+
+  $widget[] = array(
+    '#type' => 'container',
+    '#id' => 'files_dir_container',
+  );
+
+
   $query = db_select('phploc_result', 'pr')
-    ->fields('pr', array('timestamp', 'loc', 'lloc', 'commented_loc', 'non_commented_loc'))
-    ->condition('pr.module', 'code_qa', '=')
+    ->fields('pr', array('timestamp', 'directories', 'files'))
+    ->condition('pr.module', $module_name, '=')
     ->orderBy('timestamp', 'ASC');
 
   $result = $query->execute()->fetchAllAssoc('timestamp');
+  $timestamps = array();
+  $files = array();
+  $dirs = array();
 
-  $keys = array();
-  $loc = array();
-  $lloc = array();
-  $commented_loc = array();
-  $non_commented_loc = array();
-  foreach($result as $obj) {
-    $keys[] = $obj->timestamp;
-    $loc[] = $obj->loc;
-    $lloc[] = $obj->lloc;
-    $commented_loc[] = $obj->commented_loc;
-    $non_commented_loc[] = $obj->non_commented_loc;
+  foreach($result as $row) {
+    $timestamps[] = format_date($row->timestamp, $type = 'short');
+    $files[] = $row->files;
+    $dirs[] = $row->directories;
   }
 
-  $canvas = charts_graphs_get_graph('flot');
 
-  $canvas->title = "History";
-  $canvas->type = "line";
-  $canvas->y_legend = "Y Legend";
-  $canvas->colour = '#ffffff';
-  // $canvas->theme = 'keynote';
-  $canvas->series = array(
-    'Lines of code' => $loc,
-    'Logical lines of code' => $lloc,
-    'Commented lines of code' => $commented_loc,
-    'Non-commented lines of code' => $non_commented_loc,
+  $settings['chart']['chartOne'] = array(
+    'header' => $timestamps,
+    'rows' => array($files, $dirs),
+    'columns' => array(t('Files'), t('Directories')),
+    'chartType' => 'LineChart',
+    'containerId' =>  'files_dir_container',
+    'options' => array(
+      'title' => t('Files & Directories History'),
+      'titlePosition' => 'none',
+      'width' => 500,
+      'height' => 300,
+      'curveType' => 'none',
+      'hAxis' => array(
+        'slantedText' => TRUE,
+      ),
+      'pointSize' => 5,
+    )
   );
-  $canvas->x_labels = $keys;
 
-  $ret = $canvas->get_chart();
+  //Draw it.
+  $ret = draw_chart($settings);
 
-  return $ret;
+
+  return $widget;
+
 }
-
 
 
