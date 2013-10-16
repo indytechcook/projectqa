@@ -4,12 +4,10 @@ Tools to monitor the code of your Drupal site. Inspired by this Drupalcon Portla
 
 ## Setup
 
-1. Download phploc from https://phar.phpunit.de/phploc.phar and place it in sites/all/libraries/
-2. Make sure phploc.phar is marked as globally executable (`chmod a+x phploc.phar`)
-3. Install this module (and enable it)
-4. Go to <yoursite>/admin/code_qa
-5. Click 'Run PHPLOC'
-6. Click 'View results'
+1. Use drush to install this module: `drush en code_qa -y` (using the UI will not handle all the dependencies)
+2. Go to <yoursite>/admin/code_qa
+3. Click 'Run PHPLOC'
+4. Click 'View results'
 
 Want to see what it looks like?
 
