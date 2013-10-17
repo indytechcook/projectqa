@@ -10,3 +10,5 @@ dependencies[] = phploc_result
 
 
 files[] = code_qa.admin.inc
+files[] = code_qa.drush.inc
+files[] = code_qa.phploc.inc
