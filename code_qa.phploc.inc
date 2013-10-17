@@ -359,6 +359,7 @@ function code_qa_phploc_files_dir_history_graph($module_name) {
       'width' => 500,
       'height' => 200,
       'curveType' => 'none',
+      'legend' => 'none',
       'hAxis' => array(
         'slantedText' => TRUE,
       ),
@@ -411,6 +412,7 @@ function code_qa_phploc_cc_history_graph($module_name) {
       'width' => 500,
       'height' => 200,
       'curveType' => 'none',
+      'legend' => 'none',
       'hAxis' => array(
         'slantedText' => TRUE,
       ),
@@ -454,9 +456,10 @@ function code_qa_phploc_code_comments_graph($module_name) {
     'containerId' =>  'code_comments_container',
     'options' => array(
       'title' => t('Code Comments'),
-      'width' => 500,
-      'height' => 200,
+      'width' => 300,
+      'height' => 300,
       'curveType' => 'none',
+      'legend' => 'none',
       'hAxis' => array(
         'slantedText' => TRUE,
       ),
@@ -503,9 +506,10 @@ function code_qa_phploc_classes_function_graph($module_name) {
     'containerId' =>  'classes_functions_container',
     'options' => array(
       'title' => t('Classes & Functions'),
-      'width' => 500,
-      'height' => 200,
+      'width' => 300,
+      'height' => 300,
       'curveType' => 'none',
+      'legend' => 'none',
       'hAxis' => array(
         'slantedText' => TRUE,
       ),
