@@ -502,7 +502,7 @@ function code_qa_phploc_classes_function_graph($module_name) {
     'chartType' => 'PieChart',
     'containerId' =>  'classes_functions_container',
     'options' => array(
-      'title' => t('Classes & Function'),
+      'title' => t('Classes & Functions'),
       'width' => 500,
       'height' => 200,
       'curveType' => 'none',
