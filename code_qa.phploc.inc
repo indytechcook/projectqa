@@ -281,6 +281,7 @@ function code_qa_phploc_report_module_page($form, &$form_state, $module_name) {
   );
 
   $form[] = code_qa_phploc_files_dir_history_graph($module_name);
+  $form[] = code_qa_phploc_cc_history_graph($module_name);
 
   return $form;
 }
@@ -291,6 +292,12 @@ function code_qa_phploc_files_dir_history_graph($module_name) {
     '#type' => 'fieldset',
     '#title' => t('Files & Directories History'),
     '#tree' => TRUE,
+    '#attributes' => array(
+      'style' => array(
+        'display: inline-block;',
+        'margin-right: 30px;',
+      )
+    ),
   );
 
   $widget[] = array(
@@ -316,7 +323,7 @@ function code_qa_phploc_files_dir_history_graph($module_name) {
   }
 
 
-  $settings['chart']['chartOne'] = array(
+  $settings['chart']['files_dirs'] = array(
     'header' => $timestamps,
     'rows' => array($files, $dirs),
     'columns' => array(t('Files'), t('Directories')),
@@ -340,7 +347,71 @@ function code_qa_phploc_files_dir_history_graph($module_name) {
 
 
   return $widget;
+}
 
+
+function code_qa_phploc_cc_history_graph($module_name) {
+  $widget = array(
+    '#type' => 'fieldset',
+    '#title' => t('Cyclomatic Complexity History'),
+    '#tree' => TRUE,
+    '#attributes' => array(
+      'style' => array(
+        'display: inline-block;',
+        'margin-right: 0px;',
+      )
+    ),
+  );
+
+  $widget[] = array(
+    '#type' => 'container',
+    '#id' => 'cc_container',
+  );
+
+
+  $query = db_select('phploc_result', 'pr')
+    ->fields('pr', array('timestamp', 'cc_loc', 'cc_methods'))
+    ->condition('pr.module', $module_name, '=')
+    ->orderBy('timestamp', 'ASC');
+
+  $result = $query->execute()->fetchAllAssoc('timestamp');
+
+  $result = $query->execute()->fetchAllAssoc('timestamp');
+  $timestamps = array();
+  $cc_loc = array();
+  $cc_methods = array();
+
+  foreach($result as $row) {
+    $timestamps[] = format_date($row->timestamp, $type = 'short');
+    $cc_loc[] = $row->cc_loc;
+    $cc_methods[] = $row->cc_methods;
+  }
+
+
+  $settings['chart']['cc'] = array(
+    'header' => $timestamps,
+    'rows' => array($cc_loc, $cc_methods),
+    'columns' => array(t('LOC'), t('Methods')),
+    'chartType' => 'LineChart',
+    'containerId' =>  'cc_container',
+    'options' => array(
+      'title' => t('Cyclomatic Complexity History'),
+      'titlePosition' => 'none',
+      'width' => 500,
+      'height' => 300,
+      'curveType' => 'none',
+      'hAxis' => array(
+        'slantedText' => TRUE,
+      ),
+      'pointSize' => 5,
+    )
+  );
+
+  //Draw it.
+  $ret = draw_chart($settings);
+
+
+  return $widget;
 }
 
 
