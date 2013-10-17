@@ -280,27 +280,52 @@ function code_qa_phploc_report_module_page($form, &$form_state, $module_name) {
     '#suffix' => '</div>',
   );
 
-  $form[] = code_qa_phploc_files_dir_history_graph($module_name);
-  $form[] = code_qa_phploc_cc_history_graph($module_name);
+  $overview = array(
+    '#type' => 'fieldset',
+    '#title' => t('Overview'),
+    '#tree' => TRUE,
+    '#collapsible' => TRUE,
+  );
+  $overview[] = code_qa_phploc_files_dir_history_graph($module_name);
+  $overview[] = code_qa_phploc_cc_history_graph($module_name);
+  $form[] = $overview;
+
+
+  $size = array(
+    '#type' => 'fieldset',
+    '#title' => t('Code Size'),
+    '#tree' => TRUE,
+    '#collapsible' => TRUE,
+  );
+  $size[] = code_qa_phploc_code_comments_graph($module_name);
+  $size[] = code_qa_phploc_classes_function_graph($module_name);
+  $form[] = $size;
+
+
+  $dependecies = array(
+    '#type' => 'fieldset',
+    '#title' => t('Dependencies'),
+    '#tree' => TRUE,
+    '#collapsible' => TRUE,
+  );
+  $form[] = $dependecies;
+
+
+  $structure = array(
+    '#type' => 'fieldset',
+    '#title' => t('Structure'),
+    '#tree' => TRUE,
+    '#collapsible' => TRUE,
+  );
+  $form[] = $structure;
+
 
   return $form;
 }
 
 
 function code_qa_phploc_files_dir_history_graph($module_name) {
-  $widget = array(
-    '#type' => 'fieldset',
-    '#title' => t('Files & Directories History'),
-    '#tree' => TRUE,
-    '#attributes' => array(
-      'style' => array(
-        'display: inline-block;',
-        'margin-right: 30px;',
-      )
-    ),
-  );
-
-  $widget[] = array(
+  $container[] = array(
     '#type' => 'container',
     '#id' => 'files_dir_container',
   );
@@ -331,9 +356,8 @@ function code_qa_phploc_files_dir_history_graph($module_name) {
     'containerId' =>  'files_dir_container',
     'options' => array(
       'title' => t('Files & Directories History'),
-      'titlePosition' => 'none',
       'width' => 500,
-      'height' => 300,
+      'height' => 200,
       'curveType' => 'none',
       'hAxis' => array(
         'slantedText' => TRUE,
@@ -346,24 +370,12 @@ function code_qa_phploc_files_dir_history_graph($module_name) {
   $ret = draw_chart($settings);
 
 
-  return $widget;
+  return $container;
 }
 
 
 function code_qa_phploc_cc_history_graph($module_name) {
-  $widget = array(
-    '#type' => 'fieldset',
-    '#title' => t('Cyclomatic Complexity History'),
-    '#tree' => TRUE,
-    '#attributes' => array(
-      'style' => array(
-        'display: inline-block;',
-        'margin-right: 0px;',
-      )
-    ),
-  );
-
-  $widget[] = array(
+  $container[] = array(
     '#type' => 'container',
     '#id' => 'cc_container',
   );
@@ -396,9 +408,8 @@ function code_qa_phploc_cc_history_graph($module_name) {
     'containerId' =>  'cc_container',
     'options' => array(
       'title' => t('Cyclomatic Complexity History'),
-      'titlePosition' => 'none',
       'width' => 500,
-      'height' => 300,
+      'height' => 200,
       'curveType' => 'none',
       'hAxis' => array(
         'slantedText' => TRUE,
@@ -411,7 +422,103 @@ function code_qa_phploc_cc_history_graph($module_name) {
   $ret = draw_chart($settings);
 
 
-  return $widget;
+  return $container;
+}
+
+
+function code_qa_phploc_code_comments_graph($module_name) {
+  $container[] = array(
+    '#type' => 'container',
+    '#id' => 'code_comments_container',
+    '#attributes' => array(
+      'style' => array(
+        'display:block;',
+      )
+    ),
+  );
+
+
+  $query = db_select('phploc_result', 'pr')
+    ->fields('pr', array('timestamp', 'commented_loc', 'non_commented_loc'))
+    ->condition('pr.module', $module_name, '=')
+    ->orderBy('timestamp', 'ASC')
+    ->range(0,1);
+
+  $result = $query->execute()->fetchAssoc();
+
+  $settings['chart']['code_comments'] = array(
+    'header' => array('Commented', 'Non-Commented'),
+    'rows' => array(array($result['commented_loc'], $result['non_commented_loc'])),
+    'columns' => array('Code Comments'),
+    'chartType' => 'PieChart',
+    'containerId' =>  'code_comments_container',
+    'options' => array(
+      'title' => t('Code Comments'),
+      'width' => 500,
+      'height' => 200,
+      'curveType' => 'none',
+      'hAxis' => array(
+        'slantedText' => TRUE,
+      ),
+      'is3D' => TRUE,
+      'pointSize' => 5,
+    )
+  );
+
+  //Draw it.
+  $ret = draw_chart($settings);
+
+
+  return $container;
+}
+
+
+function code_qa_phploc_classes_function_graph($module_name) {
+  $container = array(
+    '#type' => 'container',
+    '#id' => 'classes_functions_container',
+    '#attributes' => array(
+      'style' => array(
+        'display:inline;',
+      )
+    ),
+  );
+
+
+  $query = db_select('phploc_result', 'pr')
+    ->fields('pr', array('timestamp', 'lloc', 'classes', 'functions'))
+    ->condition('pr.module', $module_name, '=')
+    ->orderBy('timestamp', 'ASC')
+    ->range(0,1);
+
+  $result = $query->execute()->fetchAssoc();
+
+  $other = $result['lloc'] - $result['classes'] - $result['functions'];
+
+  $settings['chart']['classes_functions'] = array(
+    'header' => array('Classes', 'Functions', 'Other'),
+    'rows' => array(array($result['classes'], $result['functions'], $other)),
+    'columns' => array('Classes & Functions'),
+    'chartType' => 'PieChart',
+    'containerId' =>  'classes_functions_container',
+    'options' => array(
+      'title' => t('Classes & Function'),
+      'width' => 500,
+      'height' => 200,
+      'curveType' => 'none',
+      'hAxis' => array(
+        'slantedText' => TRUE,
+      ),
+      'is3D' => TRUE,
+      'pointSize' => 5,
+    )
+  );
+
+  //Draw it.
+  $ret = draw_chart($settings);
+
+
+  return $container;
 }
 
 
