@@ -1,11 +1,11 @@
 <?php
-
 /**
- * @file Logic pertaining to PHPLOC
+ * @file
+ * Logic pertaining to PHPLOC
  */
 
 /**
- *
+ * Callback for the Run PHPLOC button.
  */
 function code_qa_run_phploc() {
   code_qa_generate_phploc_resultset();
@@ -15,7 +15,7 @@ function code_qa_run_phploc() {
 
 
 /**
- *
+ * Menu callback.
  */
 function code_qa_view_phploc() {
   drupal_goto('admin/code_qa/phploc');
@@ -23,7 +23,7 @@ function code_qa_view_phploc() {
 
 
 /**
- * Creates the PHPLOC report page
+ * Creates the PHPLOC report page.
  */
 function code_qa_phploc_report_page($form, &$form_state) {
   $form = array();
@@ -43,7 +43,7 @@ function code_qa_phploc_report_page($form, &$form_state) {
 
 
 /**
- * Generates the PHPLOC result set
+ * Generates the PHPLOC result set.
  */
 function code_qa_generate_phploc_resultset() {
   composer_manager_register_autoloader();
@@ -61,10 +61,11 @@ function code_qa_generate_phploc_resultset() {
     $core_module_path = DRUPAL_ROOT . '/modules';
 
     if ($skip_core_modules && strncmp($module_path, $core_module_path, strlen($core_module_path))) {
-      continue; // Skip core modules
+      // Skip core modules.
+      continue;
     }
 
-    // Run phploc on the module
+    // Run phploc on the module.
     $output_file = $tmp_directory . '/' . $module_name . '.csv ';
     $t = exec($phploc . $params . $output_file . $module_path);
 
@@ -75,7 +76,7 @@ function code_qa_generate_phploc_resultset() {
       '#suffix' => '</li>',
     );
 
-    // Read in the phploc values and insert into DB
+    // Read in the phploc values and insert into DB.
     $tmp_file = trim($output_file);
     $lines = file($tmp_file);
 
@@ -85,57 +86,57 @@ function code_qa_generate_phploc_resultset() {
 
 
 /**
- * Creates a set of key/values for data columns
+ * Creates a set of key/values for data columns.
  */
 function code_qa_get_phploc_result_map() {
   $map = array(
-     'directories' => t('(Sub) Directories'),
-     'files' => t('Files'),
-     'loc' => t('Lines of Code'),
-     'cc_loc' => t('Complexity/Lines'),
-     'commented_loc' => t('Commented Lines of Code'),
-     'non_commented_loc' => t('Non-Commented Lines of Code'),
-     'lloc' => t('Logical Lines of Code'),
-     'namespaces' => t('Namespaces'),
-     'interfaces' => t('Interfaces'),
-     'traits' => t('Traits'),
-     'classes' => t('Classes'),
-     'abstract_classes' => t('Abstract Classes'),
-     'concrete_classes' => t('Concrete Classes'),
-     'avg_class_length' => t('Avg Class Length'),
-     'methods' => t('Methods'),
-     'non_static_methods' => t('Non-Static Methods'),
-     'static_methods' => t('Static Methods'),
-     'public_methods' => t('Public Methods'),
-     'non_public_methods' => t('Non-public Methods'),
-     'avg_method_length' => t('Avg Method Length'),
-     'cc_methods' => t('Complexity/Methods'),
-     'functions' => t('Functions'),
-     'named_functions' => t('Named Functions'),
-     'anonymous_functions' => t('Anonymous Functions'),
-     'constants' => t('Constants'),
-     'global_constants' => t('Global Constants'),
-     'class_constants' => t('Class Constants'),
-     'attribute_accesses' => t('Attribute Accesses'),
-     'non_static_attribute_accesses' => t('Non-Static Attribute Accesses'),
-     'static_attribute_accesses' => t('Static Attribute Accesses'),
-     'method_calls' => t('Method Calls'),
-     'non_static_method_calls' => t('Non-Static Method Calls'),
-     'static_method_calls' => t('Static Method Calls'),
-     'global_accesses' => t('Global Accesses'),
-     'global_variable_accesses' => t('Global Variable Accesses'),
-     'super_global_var_accesses' => t('Super Global Variable Accesses'),
-     'global_constant_accesses' => t('Global Constant Accesses'),
-     'test_classes' => t('Test Classes'),
-     'test_methods' => t('Test Methods'),
-   );
+    'directories' => t('(Sub) Directories'),
+    'files' => t('Files'),
+    'loc' => t('Lines of Code'),
+    'cc_loc' => t('Complexity/Lines'),
+    'commented_loc' => t('Commented Lines of Code'),
+    'non_commented_loc' => t('Non-Commented Lines of Code'),
+    'lloc' => t('Logical Lines of Code'),
+    'namespaces' => t('Namespaces'),
+    'interfaces' => t('Interfaces'),
+    'traits' => t('Traits'),
+    'classes' => t('Classes'),
+    'abstract_classes' => t('Abstract Classes'),
+    'concrete_classes' => t('Concrete Classes'),
+    'avg_class_length' => t('Avg Class Length'),
+    'methods' => t('Methods'),
+    'non_static_methods' => t('Non-Static Methods'),
+    'static_methods' => t('Static Methods'),
+    'public_methods' => t('Public Methods'),
+    'non_public_methods' => t('Non-public Methods'),
+    'avg_method_length' => t('Avg Method Length'),
+    'cc_methods' => t('Complexity/Methods'),
+    'functions' => t('Functions'),
+    'named_functions' => t('Named Functions'),
+    'anonymous_functions' => t('Anonymous Functions'),
+    'constants' => t('Constants'),
+    'global_constants' => t('Global Constants'),
+    'class_constants' => t('Class Constants'),
+    'attribute_accesses' => t('Attribute Accesses'),
+    'non_static_attribute_accesses' => t('Non-Static Attribute Accesses'),
+    'static_attribute_accesses' => t('Static Attribute Accesses'),
+    'method_calls' => t('Method Calls'),
+    'non_static_method_calls' => t('Non-Static Method Calls'),
+    'static_method_calls' => t('Static Method Calls'),
+    'global_accesses' => t('Global Accesses'),
+    'global_variable_accesses' => t('Global Variable Accesses'),
+    'super_global_var_accesses' => t('Super Global Variable Accesses'),
+    'global_constant_accesses' => t('Global Constant Accesses'),
+    'test_classes' => t('Test Classes'),
+    'test_methods' => t('Test Methods'),
+  );
 
-   return $map;
+  return $map;
 }
 
 
 /**
- * Saves the PHPLOC result as an entity
+ * Saves the PHPLOC result as an entity.
  */
 function code_qa_save_phploc_resultset($module_name, $data) {
 
@@ -153,7 +154,7 @@ function code_qa_save_phploc_resultset($module_name, $data) {
 
 
 /**
- * Generate result table
+ * Generate result table.
  */
 function code_quality_generate_phploc_result_table() {
 
@@ -209,9 +210,7 @@ function code_quality_generate_phploc_result_table() {
     ),
   );
 
-
-
-  //TODO: Can't do LIMIT in a subquery in MySQL?
+  // TODO: Can't do LIMIT in a subquery in MySQL?
   $subresult = db_query('SELECT MAX(prid) as prid FROM phploc_result GROUP BY module ORDER BY MAX(prid) DESC');
   $subresult = $subresult->fetchAllAssoc('prid');
 
@@ -261,7 +260,19 @@ function code_quality_generate_phploc_result_table() {
 
 
 /**
+ * Callback to generate the module report page.
  *
+ * @param array $form
+ *   The form array for this page.
+ *
+ * @param array $form_state
+ *   The form status info.
+ *
+ * @param string $module_name
+ *   The name of the module to be processed.
+ *
+ * @return array
+ *   The Form API array representing this page.
  */
 function code_qa_phploc_report_module_page($form, &$form_state, $module_name) {
   $form = array();
@@ -290,7 +301,6 @@ function code_qa_phploc_report_module_page($form, &$form_state, $module_name) {
   $overview[] = code_qa_phploc_cc_history_graph($module_name);
   $form[] = $overview;
 
-
   $size = array(
     '#type' => 'fieldset',
     '#title' => t('Code Size'),
@@ -301,7 +311,6 @@ function code_qa_phploc_report_module_page($form, &$form_state, $module_name) {
   $size[] = code_qa_phploc_classes_function_graph($module_name);
   $form[] = $size;
 
-
   $dependecies = array(
     '#type' => 'fieldset',
     '#title' => t('Dependencies'),
@@ -309,7 +318,6 @@ function code_qa_phploc_report_module_page($form, &$form_state, $module_name) {
     '#collapsible' => TRUE,
   );
   $form[] = $dependecies;
-
 
   $structure = array(
     '#type' => 'fieldset',
@@ -319,17 +327,24 @@ function code_qa_phploc_report_module_page($form, &$form_state, $module_name) {
   );
   $form[] = $structure;
 
-
   return $form;
 }
 
 
+/**
+ * Loads data and generates the history graph files and directories.
+ *
+ * @param string $module_name
+ *   The name of the module to evaluate.
+ *
+ * @return array
+ *   The Form API array for this graph
+ */
 function code_qa_phploc_files_dir_history_graph($module_name) {
   $container[] = array(
     '#type' => 'container',
     '#id' => 'files_dir_container',
   );
-
 
   $query = db_select('phploc_result', 'pr')
     ->fields('pr', array('timestamp', 'directories', 'files'))
@@ -341,19 +356,18 @@ function code_qa_phploc_files_dir_history_graph($module_name) {
   $files = array();
   $dirs = array();
 
-  foreach($result as $row) {
+  foreach ($result as $row) {
     $timestamps[] = format_date($row->timestamp, $type = 'short');
     $files[] = $row->files;
     $dirs[] = $row->directories;
   }
-
 
   $settings['chart']['files_dirs'] = array(
     'header' => $timestamps,
     'rows' => array($files, $dirs),
     'columns' => array(t('Files'), t('Directories')),
     'chartType' => 'LineChart',
-    'containerId' =>  'files_dir_container',
+    'containerId' => 'files_dir_container',
     'options' => array(
       'title' => t('Files & Directories History'),
       'width' => 500,
@@ -364,23 +378,30 @@ function code_qa_phploc_files_dir_history_graph($module_name) {
         'slantedText' => TRUE,
       ),
       'pointSize' => 5,
-    )
+    ),
   );
 
-  //Draw it.
+  // Draw it.
   $ret = draw_chart($settings);
-
 
   return $container;
 }
 
 
+/**
+ * Loads data and generates the history graph for cyclomatic complexity.
+ *
+ * @param string $module_name
+ *   The name of the module to evaluate.
+ *
+ * @return array
+ *   The Form API array for this graph
+ */
 function code_qa_phploc_cc_history_graph($module_name) {
   $container[] = array(
     '#type' => 'container',
     '#id' => 'cc_container',
   );
-
 
   $query = db_select('phploc_result', 'pr')
     ->fields('pr', array('timestamp', 'cc_loc', 'cc_methods'))
@@ -394,19 +415,18 @@ function code_qa_phploc_cc_history_graph($module_name) {
   $cc_loc = array();
   $cc_methods = array();
 
-  foreach($result as $row) {
+  foreach ($result as $row) {
     $timestamps[] = format_date($row->timestamp, $type = 'short');
     $cc_loc[] = $row->cc_loc;
     $cc_methods[] = $row->cc_methods;
   }
-
 
   $settings['chart']['cc'] = array(
     'header' => $timestamps,
     'rows' => array($cc_loc, $cc_methods),
     'columns' => array(t('LOC'), t('Methods')),
     'chartType' => 'LineChart',
-    'containerId' =>  'cc_container',
+    'containerId' => 'cc_container',
     'options' => array(
       'title' => t('Cyclomatic Complexity History'),
       'width' => 500,
@@ -417,17 +437,25 @@ function code_qa_phploc_cc_history_graph($module_name) {
         'slantedText' => TRUE,
       ),
       'pointSize' => 5,
-    )
+    ),
   );
 
-  //Draw it.
+  // Draw it.
   $ret = draw_chart($settings);
-
 
   return $container;
 }
 
 
+/**
+ * Loads data and generates the graph for code and comments.
+ *
+ * @param string $module_name
+ *   The name of the module to evaluate.
+ *
+ * @return array
+ *   The Form API array for this graph
+ */
 function code_qa_phploc_code_comments_graph($module_name) {
   $container[] = array(
     '#type' => 'container',
@@ -435,16 +463,15 @@ function code_qa_phploc_code_comments_graph($module_name) {
     '#attributes' => array(
       'style' => array(
         'display:block;',
-      )
+      ),
     ),
   );
-
 
   $query = db_select('phploc_result', 'pr')
     ->fields('pr', array('timestamp', 'commented_loc', 'non_commented_loc'))
     ->condition('pr.module', $module_name, '=')
     ->orderBy('timestamp', 'ASC')
-    ->range(0,1);
+    ->range(0, 1);
 
   $result = $query->execute()->fetchAssoc();
 
@@ -453,7 +480,7 @@ function code_qa_phploc_code_comments_graph($module_name) {
     'rows' => array(array($result['commented_loc'], $result['non_commented_loc'])),
     'columns' => array('Code Comments'),
     'chartType' => 'PieChart',
-    'containerId' =>  'code_comments_container',
+    'containerId' => 'code_comments_container',
     'options' => array(
       'title' => t('Code Comments'),
       'width' => 300,
@@ -465,17 +492,24 @@ function code_qa_phploc_code_comments_graph($module_name) {
       ),
       'is3D' => TRUE,
       'pointSize' => 5,
-    )
+    ),
   );
 
-  //Draw it.
+  // Draw it.
   $ret = draw_chart($settings);
-
 
   return $container;
 }
 
-
+/**
+ * Loads data and generates the graph for classes & functions.
+ *
+ * @param string $module_name
+ *   The name of the module to evaluate.
+ *
+ * @return array
+ *   The Form API array for this graph
+ */
 function code_qa_phploc_classes_function_graph($module_name) {
   $container = array(
     '#type' => 'container',
@@ -483,16 +517,15 @@ function code_qa_phploc_classes_function_graph($module_name) {
     '#attributes' => array(
       'style' => array(
         'display:inline;',
-      )
+      ),
     ),
   );
-
 
   $query = db_select('phploc_result', 'pr')
     ->fields('pr', array('timestamp', 'lloc', 'classes', 'functions'))
     ->condition('pr.module', $module_name, '=')
     ->orderBy('timestamp', 'ASC')
-    ->range(0,1);
+    ->range(0, 1);
 
   $result = $query->execute()->fetchAssoc();
 
@@ -503,7 +536,7 @@ function code_qa_phploc_classes_function_graph($module_name) {
     'rows' => array(array($result['classes'], $result['functions'], $other)),
     'columns' => array('Classes & Functions'),
     'chartType' => 'PieChart',
-    'containerId' =>  'classes_functions_container',
+    'containerId' => 'classes_functions_container',
     'options' => array(
       'title' => t('Classes & Functions'),
       'width' => 300,
@@ -515,14 +548,11 @@ function code_qa_phploc_classes_function_graph($module_name) {
       ),
       'is3D' => TRUE,
       'pointSize' => 5,
-    )
+    ),
   );
 
-  //Draw it.
+  // Draw it.
   $ret = draw_chart($settings);
-
 
   return $container;
 }
-
-

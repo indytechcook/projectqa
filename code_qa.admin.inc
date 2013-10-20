@@ -1,11 +1,11 @@
 <?php
-
 /**
- * @file Admin pages and functions
+ * @file
+ * Admin pages and functions
  */
 
 /**
- * Callback for module page
+ * Callback for module page.
  */
 function code_qa_admin_page($form, &$form_state) {
   $form = array();
@@ -31,7 +31,5 @@ function code_qa_admin_page($form, &$form_state) {
 
   $form['phploc']['action'] = $phploc_actions;
 
-
   return $form;
 }
-
