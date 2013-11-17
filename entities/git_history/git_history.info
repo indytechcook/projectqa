@@ -1,0 +1,6 @@
+name = PGit history
+description = Custom entity type for storing git history meta data
+core = 7.x
+package = Development
+
+dependencies[] = entity

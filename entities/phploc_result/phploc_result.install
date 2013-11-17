@@ -18,6 +18,12 @@ function phploc_result_schema() {
         'unsigned' => TRUE,
         'not null' => TRUE,
       ),
+      'ghid' => array(
+        'description' => 'The git history these results are for.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
       'module' => array(
         'type' => 'varchar',
         'length' => 256,

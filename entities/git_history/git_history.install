@@ -1,0 +1,47 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function git_history_schema() {
+  $schema['git_history'] = array(
+    'description' => 'The base table for git history data.',
+    'fields' => array(
+      'ghid' => array(
+        'description' => 'The primary identifier for a git history.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'hash' => array(
+        'type' => 'varchar',
+        'length' => 256,
+        'not null' => TRUE,
+        'description' => 'The hash of the checkin',
+      ),
+      'timestamp' => array(
+        'description' => 'The Unix timestamp for the git checkin.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'author' => array(
+        'type' => 'varchar',
+        'length' => 256,
+        'not null' => TRUE,
+        'description' => 'The author name of the checkin',
+      ),
+    ),
+    'primary key' => array('ghid'),
+    'indexes' => array(
+      'ghid' => array('ghid'),
+    ),
+  );
+
+  return $schema;
+}
