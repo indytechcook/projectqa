@@ -1,6 +1,11 @@
 <?php
 
 /**
+ * @file
+ * PHPLOC_Result entity code.
+ */
+
+/**
  * Implements hook_entity_info().
  */
 function phploc_result_entity_info() {
@@ -11,88 +16,13 @@ function phploc_result_entity_info() {
       'controller class' => 'PhplocResultController',
       'base table' => 'phploc_result',
       'uri callback' => 'phploc_result_uri',
-      'fieldable' => TRUE,
+      'fieldable' => FALSE,
       'entity keys' => array(
         'id' => 'prid',
       ),
       'static cache' => TRUE,
-      'bundles' => array(
-        'phploc_result' => array(
-          'label' => 'PHPLOC Result',
-          'admin' => array(
-            'path' => 'admin/structure/phploc_result/manage',
-            'access arguments' => array('administer phploc_result'),
-          ),
-        ),
-      ),
-      'view modes' => array(
-        'full' => array(
-          'label' => t('PHPLOC Result'),
-          'custom settings' =>  FALSE,
-        ),
-      ),
     ),
   );
-}
-
-
-/**
- * Implements hook_menu().
- */
-function phploc_result_menu() {
-  $items = array();
-  $items['phploc-result/add'] = array(
-    'title' => 'Add PHPLOC Result',
-    'page callback' => 'phploc_result_admin_add_page',
-    'access arguments' => array('administer phploc_result entities'),
-    'file' => 'phploc_result.admin.inc',
-    'type' => MENU_LOCAL_ACTION,
-    'tab_parent' => 'task',
-    'tab_root' => 'task',
-  );
-
-  $phploc_result_uri = 'phploc_result/%phploc_result';
-  $phploc_result_uri_argument_position = 1;
-
-  $items[$phploc_result_uri] = array(
-    'title callback' => 'entity_label',
-    'title arguments' => array('phploc_result', $phploc_result_uri_argument_position),
-    'page callback' => 'phploc_result_view',
-    'page arguments' => array($phploc_result_uri_argument_position),
-    'access callback' => 'entity_access',
-    'access arguments' => array('view', 'phploc_result', $phploc_result_uri_argument_position),
-    'file' => 'phploc_result.pages.inc',
-  );
-
-  $items[$phploc_result_uri . '/view'] = array(
-    'title' => 'View',
-    'type' => MENU_DEFAULT_LOCAL_TASK,
-    'weight' => -10,
-  );
-
-  $items[$phploc_result_uri . '/delete'] = array(
-    'title' => 'Delete PHPLOC Result',
-    'title callback' => 'phploc_result_label',
-    'title arguments' => array($phploc_result_uri_argument_position),
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('phploc_result_delete_form', $phploc_result_uri_argument_position),
-    'access callback' => 'entity_access',
-    'access arguments' => array('edit', 'phploc_result', $phploc_result_uri_argument_position),
-    'file' => '$phploc_result.admin.inc',
-  );
-
-  $items[$phploc_result_uri . '/edit'] = array(
-    'title' => 'Edit',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('phploc_result_form', $phploc_result_uri_argument_position),
-    'access callback' => 'entity_access',
-    'access arguments' => array('edit', 'phploc_result', $phploc_result_uri_argument_position),
-    'file' => 'phploc_result.admin.inc',
-    'type' => MENU_LOCAL_TASK,
-    'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
-  );
-
-  return $items;
 }
 
 
@@ -153,9 +83,23 @@ function phploc_result_permission() {
  * PhplocResult class.
  */
 class PhplocResult extends Entity {
+
+  /**
+   * The default label.
+   *
+   * @return int
+   *   phploc_result id
+   */
   protected function defaultLabel() {
-    return $this->title;
+    return $this->prid;
   }
+
+  /**
+   * The default URI.
+   *
+   * @return array
+   *   An array containing the path to the phploc_result
+   */
   protected function defaultUri() {
     return array('path' => 'phploc_result/' . $this->identifier());
   }
@@ -166,81 +110,62 @@ class PhplocResult extends Entity {
  * PhplocResultController class
  */
 class PhplocResultController extends EntityAPIController {
+
+  /**
+   * Create a phploc_result.
+   *
+   * @param array $values
+   *   The values of the phploc_result object to create.
+   *
+   * @return
+   */
   public function create(array $values = array()) {
-    global $user;
-    $values += array(
-      'title' => '',
-      'description' => '',
-      'created' => REQUEST_TIME,
-      'changed' => REQUEST_TIME,
-      'uid' => $user->uid,
-    );
     return parent::create($values);
   }
 
   public function buildContent($entity, $view_mode = 'full', $langcode = NULL, $content = array()) {
     $wrapper = entity_metadata_wrapper('phploc_result', $entity);
-    $content['author'] = array('#markup' => t('Created by: !author', array('!author' => $wrapper->uid->name->value(array('sanitize' => TRUE)))));
-
-    // Make Description and Status themed like default fields.
-    $content['description'] = array(
-      '#theme' => 'field',
-      '#weight' => 0,
-      '#title' =>t('Description'),
-      '#access' => TRUE,
-      '#label_display' => 'above',
-      '#view_mode' => 'full',
-      '#language' => LANGUAGE_NONE,
-      '#field_name' => 'field_fake_description',
-      '#field_type' => 'text',
-      '#entity_type' => 'phploc_result',
-      '#bundle' => $entity->type,
-      '#items' => array(array('value' => $entity->description)),
-      '#formatter' => 'text_default',
-      0 => array('#markup' => check_plain($entity->description))
-    );
-
     return parent::buildContent($entity, $view_mode, $langcode, $content);
   }
 }
 
 
 /**
-* Load a PHPLOC Result.
-*/
-function phploc_result_load($tkid, $reset = FALSE) {
-  $tasks = phploc_result_load_multiple(array($prid), array(), $reset);
-  return reset($tasks);
+ * Load a PHPLOC Result.
+ */
+function phploc_result_load($prid, $reset = FALSE) {
+  $phploc_results = phploc_result_load_multiple(array($prid), array(), $reset);
+  return reset($phploc_results);
 }
 
 
 /**
-* Load multiple PHPLOC Results based on certain conditions.
-*/
+ * Load multiple PHPLOC Results based on certain conditions.
+ */
 function phploc_result_load_multiple($prid = array(), $conditions = array(), $reset = FALSE) {
   return entity_load('phploc_result', $prid, $conditions, $reset);
 }
 
 
 /**
-* Save PHPLOC Result.
-*/
+ * Save PHPLOC Result.
+ */
 function phploc_result_save($phploc_result) {
   entity_save('phploc_result', $phploc_result);
 }
 
 
 /**
-* Delete single PHPLOC Result.
-*/
+ * Delete single PHPLOC Result.
+ */
 function phploc_result_delete($phploc_result) {
-  entity_delete('phploc_result', entity_id('phploc_result' ,$phploc_result));
+  entity_delete('phploc_result', entity_id('phploc_result', $phploc_result));
 }
 
 
 /**
-* Delete multiple PHPLOC Results.
-*/
+ * Delete multiple PHPLOC Results.
+ */
 function phploc_result_delete_multiple($phploc_result_ids) {
   entity_delete_multiple('phploc_result', $phploc_result_ids);
 }

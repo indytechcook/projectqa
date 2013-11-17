@@ -316,4 +316,3 @@ function phploc_result_schema() {
 
   return $schema;
 }
-
