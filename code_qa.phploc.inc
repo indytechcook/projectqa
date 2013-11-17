@@ -216,25 +216,30 @@ function code_quality_generate_phploc_result_table() {
 
   $ids = array_keys($subresult);
 
-  $query = db_select('phploc_result', 'pr')
-    ->fields('pr',
-      array(
-        'module',
-        'directories',
-        'files',
-        'loc',
-        'lloc',
-        'commented_loc',
-        'cc_loc',
-        'methods',
-        'cc_methods',
-        'method_calls',
-        'constants',
-        'global_constants',
-      ))
-    ->condition('prid', $ids, 'IN')
-    ->extend('TableSort');
-  $result = $query->orderByHeader($header)->execute();
+  if($ids != NULL) {
+    $query = db_select('phploc_result', 'pr')
+      ->fields('pr',
+        array(
+          'module',
+          'directories',
+          'files',
+          'loc',
+          'lloc',
+          'commented_loc',
+          'cc_loc',
+          'methods',
+          'cc_methods',
+          'method_calls',
+          'constants',
+          'global_constants',
+        ))
+      ->condition('prid', $ids, 'IN')
+      ->extend('TableSort');
+    $result = $query->orderByHeader($header)->execute();
+  }
+  else {
+    $result = array();
+  }
 
   $header += array(
     array(
