@@ -1,0 +1,6 @@
+name = Code QA Project
+description = Custom entity type for storing what projects will be evaluated.
+core = 7.x
+package = Development
+
+dependencies[] = entity
