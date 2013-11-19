@@ -47,41 +47,28 @@ function code_qa_phploc_report_page($form, &$form_state) {
  */
 function code_qa_generate_phploc_resultset() {
   composer_manager_register_autoloader();
-
   $phploc = composer_manager_vendor_dir() . "/bin/phploc";
 
-  $module_list = module_list();
+  $projects = code_qa_get_projects();
+  $filepath = code_qa_get_filepath();
 
-  $params = ' --names *.php,*.info,*.module,*.install,*.inc --log-csv ';
-  $tmp_directory = file_directory_temp();
+  foreach ($projects as $project) {
+    $repo_path = $filepath . '/' . $project->name;
 
-  foreach ($module_list as $module_name) {
-    $skip_core_modules = FALSE;
-    $module_path = DRUPAL_ROOT . '/' . drupal_get_path('module', $module_name);
-    $core_module_path = DRUPAL_ROOT . '/modules';
-
-    if ($skip_core_modules && strncmp($module_path, $core_module_path, strlen($core_module_path))) {
-      // Skip core modules.
-      continue;
+    // Check for exisisting copy of the repo.
+    if (file_exists($repo_path)) {
+      // Update repo.
+      exec('git --work-tree=' . $repo_path . ' --git-dir=' . $repo_path . '/.git pull');
+    }
+    else {
+      // Get the repo.
+      exec('git clone ' . $project->url . ' ' . $repo_path);
     }
 
-    // Run phploc on the module.
-    $output_file = $tmp_directory . '/' . $module_name . '.csv ';
-    $t = exec($phploc . $params . $output_file . $module_path);
+    // Execute PHPLOC on repo.
 
-    $form['list'][] = array(
-      '#type' => 'markup',
-      '#markup' => $module_name . ' - ' . $output_file,
-      '#prefix' => '<li>',
-      '#suffix' => '</li>',
-    );
-
-    // Read in the phploc values and insert into DB.
-    $tmp_file = trim($output_file);
-    $lines = file($tmp_file);
-
-    code_qa_save_phploc_resultset($module_name, $lines[1]);
   }
+
 }
 
 
@@ -216,7 +203,7 @@ function code_quality_generate_phploc_result_table() {
 
   $ids = array_keys($subresult);
 
-  if($ids != NULL) {
+  if ($ids != NULL) {
     $query = db_select('phploc_result', 'pr')
       ->fields('pr',
         array(
