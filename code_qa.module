@@ -57,6 +57,7 @@ function code_qa_get_projects($header = NULL) {
         'pid',
         'name',
         'url',
+        'branch',
       )
     )
     ->extend('TableSort');

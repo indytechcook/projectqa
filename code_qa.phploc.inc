@@ -61,12 +61,13 @@ function code_qa_generate_phploc_resultset() {
     if (file_exists($repo_path)) {
       // Update repo.
       code_qa_execute_git($repo_path, 'pull');
-      code_qa_execute_git($repo_path, 'checkout master');
     }
     else {
       // Get the repo.
       exec('git clone ' . $project->url . ' ' . $repo_path);
     }
+
+    code_qa_execute_git($repo_path, 'checkout ' . $project->branch);
 
     // Execute PHPLOC on repo.
     code_qa_phploc_analyize($project);
@@ -602,6 +603,7 @@ function code_qa_phploc_analyize($project) {
   $log_options[] = '--date-order';
   $log_options[] = '--reverse';
   $log_options[] = '--format=medium';
+  $log_options[] = $project->branch;
 
   $log = code_qa_execute_git($project_path, 'log', $log_options);
   $revisions = code_qa_process_git_revisions($log);
@@ -674,7 +676,7 @@ function code_qa_phploc_analyize($project) {
     array(
       '--force',
       '--quiet',
-      'master',
+      $project->branch,
     )
   );
 }
