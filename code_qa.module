@@ -41,7 +41,15 @@ function code_qa_menu() {
   return $items;
 }
 
-
+/**
+ * Get a list of projects registered to track.
+ *
+ * @param array $header
+ *   The header array to sort on.
+ *
+ * @return array
+ *   The list of projects.
+ */
 function code_qa_get_projects($header = NULL) {
   $query = db_select('code_qa_project', 'p')
     ->fields('p',
@@ -53,7 +61,7 @@ function code_qa_get_projects($header = NULL) {
     )
     ->extend('TableSort');
 
-  if($header) {
+  if ($header) {
     $query->orderByHeader($header);
   }
   $result = $query->execute();
@@ -62,19 +70,38 @@ function code_qa_get_projects($header = NULL) {
 }
 
 
+/**
+ * Gets the filepath to where the project repos are stored locally.
+ *
+ * @return string
+ *   The system path to the repos location.
+ */
 function code_qa_get_filepath() {
-  // TODO
-
+  // TODO:
   $path = '/tmp/code_qa';
 
   return $path;
 }
 
 
+/**
+ * Helper function to execute git commands against a repo.
+ *
+ * @param string $repo_path
+ *   The system path where the repo is located.
+ *
+ * @param string $command
+ *   The git command to run.
+ *
+ * @param array $parameters
+ *   An array of parameters to pass to the git command.
+ *
+ * @return array
+ *   The output from the command.
+ */
 function code_qa_execute_git($repo_path, $command, $parameters = array()) {
 
-  $full_command = 'git'
-    . ' --git-dir=' . $repo_path
+  $full_command = 'git --git-dir=' . $repo_path
     . '/.git --work-tree=' . $repo_path
     . ' ' . $command . ' ' . implode(' ', $parameters);
 
@@ -83,28 +110,40 @@ function code_qa_execute_git($repo_path, $command, $parameters = array()) {
   return $output;
 }
 
+
+/**
+ * Processes the git response into an array of revisions data.
+ *
+ * @param array $git_log
+ *   The git log response to process.
+ *
+ * @return array
+ *   The revisions information array.
+ */
 function code_qa_process_git_revisions($git_log) {
-  $numLines  = count($git_log);
+  $num_lines  = count($git_log);
   $revisions = array();
 
-  for ($i = 0; $i < $numLines; $i++) {
-      $tmp = explode(' ', $git_log[$i]);
+  for ($i = 0; $i < $num_lines; $i++) {
+    $tmp = explode(' ', $git_log[$i]);
 
-      if (count($tmp) == 2 && $tmp[0] == 'commit') {
-          $sha1 = $tmp[1];
-      } elseif (count($tmp) == 4 && $tmp[0] == 'Author:') {
-          $author = join(' ', array_slice($tmp, 1));
-      } elseif (count($tmp) == 9 && $tmp[0] == 'Date:') {
-          $revisions[] = array(
-            'author'  => $author,
-            'date'    => \DateTime::createFromFormat(
-                'D M j H:i:s Y O',
-                join(' ', array_slice($tmp, 3))
-            ),
-            'sha1'    => $sha1,
-            'message' => isset($git_log[$i+2]) ? trim($git_log[$i+2]) : ''
-          );
-      }
+    if (count($tmp) == 2 && $tmp[0] == 'commit') {
+      $sha1 = $tmp[1];
+    }
+    elseif (count($tmp) == 4 && $tmp[0] == 'Author:') {
+      $author = implode(' ', array_slice($tmp, 1));
+    }
+    elseif (count($tmp) == 9 && $tmp[0] == 'Date:') {
+      $revisions[] = array(
+        'author'  => $author,
+        'date'    => \DateTime::createFromFormat(
+          'D M j H:i:s Y O',
+          implode(' ', array_slice($tmp, 3))
+        ),
+        'sha1'    => $sha1,
+        'message' => isset($git_log[$i + 2]) ? trim($git_log[$i + 2]) : '',
+      );
+    }
   }
 
   return $revisions;

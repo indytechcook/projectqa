@@ -554,6 +554,12 @@ function code_qa_phploc_classes_function_graph($module_name) {
 }
 
 
+/**
+ * Kick off the analasys of the code.
+ *
+ * @param object $project
+ *   The project object of the code to evaluate.
+ */
 function code_qa_phploc_analyize($project) {
   composer_manager_register_autoloader();
   $project_path = code_qa_get_filepath() . '/' . $project->name;
@@ -566,7 +572,7 @@ function code_qa_phploc_analyize($project) {
     '*.install',
     '*.inc',
   );
-  $namesExclude = array();
+  $names_exclude = array();
 
   // Get the last hash recorded for this project (if it exists).
   $query = db_select('phploc_result', 'pr')
@@ -628,7 +634,7 @@ function code_qa_phploc_analyize($project) {
     if ($directory) {
       $directories[] = $directory;
     }
-    $finder = new FinderFacade($directories , $excludes, $names, $namesExclude);
+    $finder = new FinderFacade($directories, $excludes, $names, $names_exclude);
     $files  = $finder->findFiles();
 
     // Eval the code.
@@ -636,7 +642,7 @@ function code_qa_phploc_analyize($project) {
     $data = $analyser->countFiles($files, TRUE);
 
     // Generate the delta values.
-    foreach (array_keys($data) as $key){
+    foreach (array_keys($data) as $key) {
 
       $previous_value = ($previous_data[$key] ? $previous_data[$key] : 0);
       $delta = $data[$key] - $previous_value;
