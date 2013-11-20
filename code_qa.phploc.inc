@@ -568,11 +568,44 @@ function code_qa_phploc_analyize($project) {
   );
   $namesExclude = array();
 
-  //TODO: Replace with internal git tool
-  $git = new Git($project_path);
-  $currentBranch = $git->getCurrentBranch();
-  //TODO: need a reverse sort so we only go back as far as we need to
-  $revisions = $git->getRevisions();
+  // Get the last hash recorded for this project (if it exists).
+  $query = db_select('phploc_result', 'pr')
+    ->fields('pr',
+      array(
+        'pid',
+        'timestamp',
+        'sha1',
+      )
+    )
+    ->condition('pid', $project->pid, '=')
+    ->orderBy('timestamp', 'DESC')
+    ->range(0, 1);
+
+  $result = $query->execute();
+  $old_hash = $result->fetchField(2);
+
+  $log_options = array();
+
+  if ($old_hash) {
+    $new_hash = code_qa_execute_git(
+      $project_path,
+      'log',
+      array(
+        '-n 1',
+        '--pretty=format:"%h"',
+        'HEAD~',
+      )
+    );
+
+    $log_options[] = $old_hash . '..' . $new_hash[0];
+  }
+  $log_options[] = '--no-merges';
+  $log_options[] = '--date-order';
+  $log_options[] = '--reverse';
+  $log_options[] = '--format=medium';
+
+  $log = code_qa_execute_git($project_path, 'log', $log_options);
+  $revisions = code_qa_process_git_revisions($log);
 
   $previous_data = array();
 

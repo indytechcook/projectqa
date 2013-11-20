@@ -82,3 +82,30 @@ function code_qa_execute_git($repo_path, $command, $parameters = array()) {
 
   return $output;
 }
+
+function code_qa_process_git_revisions($git_log) {
+  $numLines  = count($git_log);
+  $revisions = array();
+
+  for ($i = 0; $i < $numLines; $i++) {
+      $tmp = explode(' ', $git_log[$i]);
+
+      if (count($tmp) == 2 && $tmp[0] == 'commit') {
+          $sha1 = $tmp[1];
+      } elseif (count($tmp) == 4 && $tmp[0] == 'Author:') {
+          $author = join(' ', array_slice($tmp, 1));
+      } elseif (count($tmp) == 9 && $tmp[0] == 'Date:') {
+          $revisions[] = array(
+            'author'  => $author,
+            'date'    => \DateTime::createFromFormat(
+                'D M j H:i:s Y O',
+                join(' ', array_slice($tmp, 3))
+            ),
+            'sha1'    => $sha1,
+            'message' => isset($git_log[$i+2]) ? trim($git_log[$i+2]) : ''
+          );
+      }
+  }
+
+  return $revisions;
+}
