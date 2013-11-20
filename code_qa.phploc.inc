@@ -573,7 +573,6 @@ function code_qa_phploc_analyize($project) {
     '*.inc',
   );
   $names_exclude = array();
-  $previous_data = array();
   $log_options = array();
 
   // Get the last hash recorded for this project (if it exists).
@@ -583,12 +582,9 @@ function code_qa_phploc_analyize($project) {
     ->orderBy('timestamp', 'DESC')
     ->range(0, 1);
   $result = $query->execute();
+  $previous_data = $result->fetchAssoc();
 
-  if ($result) {
-    $previous_data = $result->fetchAssoc();
-
-    var_dump($previous_data);
-
+  if ($previous_data) {
     $new_hash = code_qa_execute_git(
       $project_path,
       'log',
