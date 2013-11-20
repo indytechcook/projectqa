@@ -604,9 +604,8 @@ function code_qa_phploc_analyize($project) {
   $log_options[] = '--format=medium';
 
   $log = code_qa_execute_git($project_path, 'log', $log_options);
+  var_dump($log);
   $revisions = code_qa_process_git_revisions($log);
-
-
 
   foreach ($revisions as $revision) {
     // Check out this commit.
