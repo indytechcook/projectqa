@@ -582,9 +582,12 @@ function code_qa_phploc_analyize($project) {
     ->condition('pid', $project->pid, '=')
     ->orderBy('timestamp', 'DESC')
     ->range(0, 1);
+  $result = $query->execute();
 
-  if ($result[0]) {
-    $previous_data = $result[0];
+  if ($result) {
+    $previous_data = $result->fetchAssoc();
+
+    var_dump($previous_data);
 
     $new_hash = code_qa_execute_git(
       $project_path,
