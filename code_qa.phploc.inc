@@ -4,6 +4,11 @@
  * Logic pertaining to PHPLOC
  */
 
+
+use SebastianBergmann\FinderFacade\FinderFacade;
+use SebastianBergmann\Git;
+use SebastianBergmann\PHPLOC\Analyser;
+
 /**
  * Callback for the Run PHPLOC button.
  */
@@ -46,9 +51,6 @@ function code_qa_phploc_report_page($form, &$form_state) {
  * Generates the PHPLOC result set.
  */
 function code_qa_generate_phploc_resultset() {
-  composer_manager_register_autoloader();
-  $phploc = composer_manager_vendor_dir() . "/bin/phploc";
-
   $projects = code_qa_get_projects();
   $filepath = code_qa_get_filepath();
 
@@ -58,7 +60,8 @@ function code_qa_generate_phploc_resultset() {
     // Check for exisisting copy of the repo.
     if (file_exists($repo_path)) {
       // Update repo.
-      exec('git --work-tree=' . $repo_path . ' --git-dir=' . $repo_path . '/.git pull');
+      code_qa_execute_git($repo_path, 'pull');
+      code_qa_execute_git($repo_path, 'checkout master');
     }
     else {
       // Get the repo.
@@ -66,6 +69,7 @@ function code_qa_generate_phploc_resultset() {
     }
 
     // Execute PHPLOC on repo.
+    code_qa_phploc_analyize($project);
 
   }
 
@@ -547,4 +551,100 @@ function code_qa_phploc_classes_function_graph($module_name) {
   $ret = draw_chart($settings);
 
   return $container;
+}
+
+
+function code_qa_phploc_analyize($project) {
+  composer_manager_register_autoloader();
+  $project_path = code_qa_get_filepath() . '/' . $project->name;
+
+  $excludes = array();
+  $names = array(
+    '*.php',
+    '*.info',
+    '*.module',
+    '*.install',
+    '*.inc',
+  );
+  $namesExclude = array();
+
+  //TODO: Replace with internal git tool
+  $git = new Git($project_path);
+  $currentBranch = $git->getCurrentBranch();
+  //TODO: need a reverse sort so we only go back as far as we need to
+  $revisions = $git->getRevisions();
+
+  $previous_data = array();
+
+  foreach ($revisions as $revision) {
+    // Check out this commit.
+    code_qa_execute_git(
+      $project_path,
+      'checkout',
+      array(
+        '--force',
+        '--quiet',
+        $revision['sha1'],
+        '2>&1',
+      )
+    );
+
+    // Look for files to evaluate.
+    $directories = array();
+    $directory = realpath($project_path);
+    if ($directory) {
+      $directories[] = $directory;
+    }
+    $finder = new FinderFacade($directories , $excludes, $names, $namesExclude);
+    $files  = $finder->findFiles();
+
+    // Eval the code.
+    $analyser = new Analyser();
+    $data = $analyser->countFiles($files, TRUE);
+
+    // Generate the delta values.
+    foreach (array_keys($data) as $key){
+
+      $previous_value = ($previous_data[$key] ? $previous_data[$key] : 0);
+      $delta = $data[$key] - $previous_value;
+
+      $delta_key = $key . '_delta';
+      $data[$delta_key] = $delta;
+    }
+
+    $entity = entity_create('phploc_result', $data);
+
+    // Get the author info for this commit.
+    $author = code_qa_execute_git(
+      $project_path,
+      'log',
+      array(
+        '-n 1',
+        '--pretty=format:"%ae"',
+        $revision['sha1'],
+      )
+    );
+
+    // Set the extra data.
+    $entity->author = $author[0];
+    $entity->pid = $project->pid;
+    $entity->sha1 = $revision['sha1'];
+    $entity->timestamp = $revision['date']->getTimestamp();
+
+    $entity->save();
+
+    // Set up the previous data array for the next loop.
+    $previous_data = $data;
+  }
+
+  // Reset the repo back to HEAD.
+  code_qa_execute_git(
+    $project_path,
+    'checkout',
+    array(
+      '--force',
+      '--quiet',
+      'master',
+    )
+  );
 }

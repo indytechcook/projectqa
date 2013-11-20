@@ -69,3 +69,16 @@ function code_qa_get_filepath() {
 
   return $path;
 }
+
+
+function code_qa_execute_git($repo_path, $command, $parameters = array()) {
+
+  $full_command = 'git'
+    . ' --git-dir=' . $repo_path
+    . '/.git --work-tree=' . $repo_path
+    . ' ' . $command . ' ' . implode(' ', $parameters);
+
+  exec($full_command, $output);
+
+  return $output;
+}
