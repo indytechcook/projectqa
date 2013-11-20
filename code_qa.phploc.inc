@@ -591,7 +591,7 @@ function code_qa_phploc_analyize($project) {
       array(
         '-n 1',
         '--pretty=format:"%h"',
-        'HEAD~',
+        'HEAD',
       )
     );
 
@@ -604,7 +604,6 @@ function code_qa_phploc_analyize($project) {
   $log_options[] = '--format=medium';
 
   $log = code_qa_execute_git($project_path, 'log', $log_options);
-  var_dump($log);
   $revisions = code_qa_process_git_revisions($log);
 
   foreach ($revisions as $revision) {
