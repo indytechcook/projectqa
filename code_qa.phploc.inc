@@ -573,26 +573,19 @@ function code_qa_phploc_analyize($project) {
     '*.inc',
   );
   $names_exclude = array();
+  $previous_data = array();
+  $log_options = array();
 
   // Get the last hash recorded for this project (if it exists).
   $query = db_select('phploc_result', 'pr')
-    ->fields('pr',
-      array(
-        'pid',
-        'timestamp',
-        'sha1',
-      )
-    )
+    ->fields('pr')
     ->condition('pid', $project->pid, '=')
     ->orderBy('timestamp', 'DESC')
     ->range(0, 1);
 
-  $result = $query->execute();
-  $old_hash = $result->fetchField(2);
+  if ($result[0]) {
+    $previous_data = $result[0];
 
-  $log_options = array();
-
-  if ($old_hash) {
     $new_hash = code_qa_execute_git(
       $project_path,
       'log',
@@ -603,8 +596,9 @@ function code_qa_phploc_analyize($project) {
       )
     );
 
-    $log_options[] = $old_hash . '..' . $new_hash[0];
+    $log_options[] = $previous_data['sha1'] . '..' . $new_hash[0];
   }
+
   $log_options[] = '--no-merges';
   $log_options[] = '--date-order';
   $log_options[] = '--reverse';
@@ -613,7 +607,7 @@ function code_qa_phploc_analyize($project) {
   $log = code_qa_execute_git($project_path, 'log', $log_options);
   $revisions = code_qa_process_git_revisions($log);
 
-  $previous_data = array();
+
 
   foreach ($revisions as $revision) {
     // Check out this commit.
