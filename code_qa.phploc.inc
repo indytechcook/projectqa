@@ -608,7 +608,13 @@ function code_qa_phploc_analyize($project) {
   $log = code_qa_execute_git($project_path, 'log', $log_options);
   $revisions = code_qa_process_git_revisions($log);
 
+  $revisions_num = count($revisions);
+  $iteration_counter = 0;
   foreach ($revisions as $revision) {
+    if ($iteration_counter % 50 == 0) {
+      echo 'Processing ' . $iteration_counter . ' of ' . $revisions_num . "\n";
+    }
+    $iteration_counter++;
     // Check out this commit.
     code_qa_execute_git(
       $project_path,
