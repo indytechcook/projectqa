@@ -3,7 +3,7 @@ description = Assist in the evaluation of module code
 core = 7.x
 package = Development
 
-dependencies[] = chart
+dependencies[] = google_chart_tools
 dependencies[] = composer_manager
 dependencies[] = entity
 dependencies[] = phploc_result
