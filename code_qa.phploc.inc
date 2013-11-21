@@ -84,7 +84,7 @@ function code_quality_generate_phploc_result_table() {
   $header = array(
     array(
       'data' => t('Name'),
-      'field' => 'pr.pid',
+      'field' => 'p.name',
     ),
     array(
       'data' => t('Directories'),
@@ -142,22 +142,22 @@ function code_quality_generate_phploc_result_table() {
         ))
       ->condition('prid', $ids, 'IN')
       ->extend('TableSort');
+    $query->join('code_qa_project', 'p', 'pr.pid = p.pid');
+    $query->fields('p',
+      array(
+        'name',
+      ));
     $result = $query->orderByHeader($header)->execute();
   }
   else {
     $result = array();
   }
 
-  $header += array(
-    array(
-      'data' => 'test',
-      'field' => 'test',
-    ),
-  );
 
   $rows = array();
   foreach ($result as $row) {
-    $row->pid = l($row->pid, 'admin/code_qa/phploc/' . $row->pid);
+    $row->pid = l($row->name, 'admin/code_qa/phploc/' . $row->pid);
+    unset($row->name);
     $rows[] = array('data' => (array) $row);
   }
 
@@ -187,11 +187,17 @@ function code_quality_generate_phploc_result_table() {
  *   The Form API array representing this page.
  */
 function code_qa_phploc_report_module_page($form, &$form_state, $pid) {
+  $query = db_select('code_qa_project', 'p')
+    ->fields('p', array('pid', 'name', 'url', 'branch'))
+    ->condition('p.pid', $pid, '=');
+
+  $result = $query->execute();
+  $project = $result->fetchObject();
   $form = array();
 
   $form['module_name'] = array(
     '#type' => 'markup',
-    '#markup' => t('Project: @mod', array('@mod' => $pid)),
+    '#markup' => t('Project: @proj', array('@proj' => $project->name)),
     '#prefix' => '<h2>',
     '#suffix' => '</h2>',
   );
@@ -209,6 +215,8 @@ function code_qa_phploc_report_module_page($form, &$form_state, $pid) {
     '#tree' => TRUE,
     '#collapsible' => TRUE,
   );
+
+  //TODO: Update these to handle passing the project.
   $overview[] = code_qa_phploc_files_dir_history_graph($pid);
   $overview[] = code_qa_phploc_cc_history_graph($pid);
   $form[] = $overview;
@@ -253,11 +261,14 @@ function code_qa_phploc_files_dir_history_graph($pid) {
       'width' => 1000,
       'height' => 200,
       'curveType' => 'none',
-      'legend' => 'none',
       'hAxis' => array(
         'slantedText' => TRUE,
       ),
-      'pointSize' => 5,
+      'pointSize' => 0,
+      'tooltip' => array(
+        'trigger' => 'selection',
+      ),
+      'selectionMode' => 'multiple',
     ),
   );
 
@@ -294,8 +305,8 @@ function code_qa_phploc_cc_history_graph($pid) {
 
   $settings['chart']['cc'] = array(
     'header' => $timestamps,
-    'rows' => array($ccnByLloc, $ccnByNom),
-    'columns' => array(t('LOC'), t('Methods')),
+    'rows' => array($ccnByLloc),
+    'columns' => array(t('CC/LLOC')),
     'chartType' => 'LineChart',
     'containerId' => 'cc_container',
     'options' => array(
@@ -303,11 +314,14 @@ function code_qa_phploc_cc_history_graph($pid) {
       'width' => 1000,
       'height' => 200,
       'curveType' => 'none',
-      'legend' => 'none',
       'hAxis' => array(
         'slantedText' => TRUE,
       ),
-      'pointSize' => 5,
+      'pointSize' => 0,
+      'tooltip' => array(
+        'trigger' => 'selection',
+      ),
+      'selectionMode' => 'multiple',
     ),
   );
 
