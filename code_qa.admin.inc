@@ -20,11 +20,11 @@ function code_qa_admin_page($form, &$form_state) {
 
   $phploc_actions = array();
 
-  $phploc_actions['run'] = array(
-    '#type' => 'submit',
-    '#value' => t('Run PHPLOC'),
-    '#submit' => array('code_qa_run_phploc'),
-  );
+  // $phploc_actions['run'] = array(
+  //   '#type' => 'submit',
+  //   '#value' => t('Run PHPLOC'),
+  //   '#submit' => array('code_qa_run_phploc'),
+  // );
   $phploc_actions['view'] = array(
     '#type' => 'submit',
     '#value' => t('View results'),
