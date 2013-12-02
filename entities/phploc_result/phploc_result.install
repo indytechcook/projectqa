@@ -694,9 +694,6 @@ function phploc_result_schema() {
       ),
     ),
     'primary key' => array('prid'),
-    'indexes' => array(
-      'prid' => array('prid'),
-    ),
   );
 
   return $schema;
