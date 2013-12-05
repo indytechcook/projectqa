@@ -16,11 +16,13 @@ function phploc_result_entity_info() {
       'controller class' => 'PhplocResultController',
       'base table' => 'phploc_result',
       'uri callback' => 'phploc_result_uri',
-      'fieldable' => FALSE,
+      'fieldable' => TRUE,
       'entity keys' => array(
         'id' => 'prid',
       ),
       'static cache' => TRUE,
+      'module' => 'phploc_result',
+      'views controller class' => 'EntityDefaultViewsController',
     ),
   );
 }
