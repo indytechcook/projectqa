@@ -29,6 +29,300 @@ function phploc_result_entity_info() {
 
 
 /**
+ * Implements hook_entity_property_info().
+ */
+function phploc_result_entity_property_info() {
+  $info = array();
+  $properties = &$info['phploc_result']['properties'];
+
+  $properties['prid'] = array(
+    'label' => 'PHPLOC Result ID',
+    'description' => t('The unique ID for the phploc result (delta).'),
+    'type' => 'integer',
+    'schema field' => 'prid',
+  );
+  $properties['gcid'] = array(
+    'label' => 'Git commit ID',
+    'description' => t('The unique ID for the git commit (delta).'),
+    'type' => 'project_qa_gitcommit',
+    'schema field' => 'gcid',
+  );
+  $properties['files'] = array(
+    'label' => 'Files',
+    'description' => t('The number of files (delta).'),
+    'type' => 'integer',
+    'schema field' => 'files',
+  );
+  $properties['loc'] = array(
+    'label' => 'Lines of Code',
+    'description' => t('The number of lines of code (delta).'),
+    'type' => 'integer',
+    'schema field' => 'loc',
+  );
+  $properties['lloc'] = array(
+    'label' => 'Logical lines of code (LLOC)',
+    'description' => t('The number of logical lines of code (delta).'),
+    'type' => 'integer',
+    'schema field' => 'lloc',
+  );
+  $properties['llocClasses'] = array(
+    'label' => 'LLOC in classes',
+    'description' => t('The number of LLOC in classes (delta).'),
+    'type' => 'integer',
+    'schema field' => 'llocClasses',
+  );
+  $properties['llocFunction'] = array(
+    'label' => 'LLOC in functions',
+    'description' => t('The number of LLOC in functions'),
+    'type' => 'integer',
+    'schema field' => 'llocFunction',
+  );
+  $properties['llocGlobal'] = array(
+    'label' => 'llocGlobal',
+    'description' => t(''), // TODO:
+    'type' => 'integer',
+    'schema field' => 'llocGlobal',
+  );
+  $properties['cloc'] = array(
+    'label' => 'Commented lines of code',
+    'description' => t('The number of commented lines of code (delta).'),
+    'type' => 'integer',
+    'schema field' => 'cloc',
+  );
+  $properties['ccn'] = array(
+    'label' => 'ccn',
+    'description' => t(''), // TODO:
+    'type' => 'integer',
+    'schema field' => 'ccn',
+  );
+  $properties['ccnMethods'] = array(
+    'label' => 'ccnMethods',
+    'description' => t(''), // TODO:
+    'type' => 'integer',
+    'schema field' => 'ccnMethods',
+  );
+  $properties['interfaces'] = array(
+    'label' => 'Interfaces',
+    'description' => t('The number of interfaces (delta).'),
+    'type' => 'integer',
+    'schema field' => 'interfaces',
+  );
+  $properties['traits'] = array(
+    'label' => 'Traits',
+    'description' => t('The number of traits (delta).'),
+    'type' => 'integer',
+    'schema field' => 'traits',
+  );
+  $properties['classes'] = array(
+    'label' => 'Classes',
+    'description' => t('The number of classes (delta).'),
+    'type' => 'integer',
+    'schema field' => 'classes',
+  );
+  $properties['abstractClasses'] = array(
+    'label' => 'Abstract classes',
+    'description' => t('The number of abstract classes (delta).'),
+    'type' => 'integer',
+    'schema field' => 'abstractClasses',
+  );
+  $properties['concreteClasses'] = array(
+    'label' => 'Concrete classes',
+    'description' => t('The number of concrete classes (delta).'),
+    'type' => 'integer',
+    'schema field' => 'concreteClasses',
+  );
+  $properties['functions'] = array(
+    'label' => 'Functions',
+    'description' => t('The number of functions (delta).'),
+    'type' => 'integer',
+    'schema field' => 'functions',
+  );
+  $properties['namedFunctions'] = array(
+    'label' => 'Named functions',
+    'description' => t('The number of named functions (delta).'),
+    'type' => 'integer',
+    'schema field' => 'namedFunctions',
+  );
+  $properties['anonymousFunctions'] = array(
+    'label' => 'Anonymous functions',
+    'description' => t('The number of anonymous functions (delta).'),
+    'type' => 'integer',
+    'schema field' => 'anonymousFunctions',
+  );
+  $properties['methods'] = array(
+    'label' => 'Methods',
+    'description' => t('The number of methods (delta).'),
+    'type' => 'integer',
+    'schema field' => 'methods',
+  );
+  $properties['publicMethods'] = array(
+    'label' => 'Public methods',
+    'description' => t('The number of public methods (delta).'),
+    'type' => 'integer',
+    'schema field' => 'publicMethods',
+  );
+  $properties['nonPublicMethods'] = array(
+    'label' => 'Non-public methods',
+    'description' => t('The number of non-public methods (delta).'),
+    'type' => 'integer',
+    'schema field' => 'nonPublicMethods',
+  );
+  $properties['nonStaticMethods'] = array(
+    'label' => 'Non-static methods',
+    'description' => t('The number of non-static methods (delta).'),
+    'type' => 'integer',
+    'schema field' => 'nonStaticMethods',
+  );
+  $properties['staticMethods'] = array(
+    'label' => 'Static methods',
+    'description' => t('The number of static methods (delta).'),
+    'type' => 'integer',
+    'schema field' => 'staticMethods',
+  );
+  $properties['constants'] = array(
+    'label' => 'Constants',
+    'description' => t('The number of constants (delta).'),
+    'type' => 'integer',
+    'schema field' => 'constants',
+  );
+  $properties['classConstants'] = array(
+    'label' => 'classConstants',
+    'description' => t('The number of class constants (delta).'),
+    'type' => 'integer',
+    'schema field' => 'classConstants',
+  );
+  $properties['globalConstants'] = array(
+    'label' => 'Global constants',
+    'description' => t('The number of global constants (delta).'),
+    'type' => 'integer',
+    'schema field' => 'globalConstants',
+  );
+  $properties['testClasses'] = array(
+    'label' => 'Test classes',
+    'description' => t('The number of test classes (delta).'),
+    'type' => 'integer',
+    'schema field' => 'testClasses',
+  );
+  $properties['testMethods'] = array(
+    'label' => 'Test methods',
+    'description' => t('The number of test methods (delta).'),
+    'type' => 'integer',
+    'schema field' => 'testMethods',
+  );
+  $properties['ccnByLloc'] = array(
+    'label' => 'ccnByLloc',
+    'description' => t(''), // TODO:
+    'type' => 'decimal',
+    'schema field' => 'ccnByLloc',
+  );
+  $properties['ccnByNom'] = array(
+    'label' => 'ccnByNom',
+    'description' => t(''), // TODO:
+    'type' => 'decimal',
+    'schema field' => 'ccnByNom',
+  );
+  $properties['llocByNoc'] = array(
+    'label' => 'llocByNoc',
+    'description' => t(''), // TODO:
+    'type' => 'integer',
+    'schema field' => 'llocByNoc',
+  );
+  $properties['llocByNom'] = array(
+    'label' => 'llocByNom',
+    'description' => t(''), // TODO:
+    'type' => 'integer',
+    'schema field' => 'llocByNom',
+  );
+  $properties['llocByNof'] = array(
+    'label' => 'llocByNof',
+    'description' => t(''), // TODO:
+    'type' => 'integer',
+    'schema field' => 'llocByNof',
+  );
+  $properties['methodCalls'] = array(
+    'label' => 'Method calls',
+    'description' => t('The number of method calls (delta).'),
+    'type' => 'integer',
+    'schema field' => 'methodCalls',
+  );
+  $properties['staticMethodCalls'] = array(
+    'label' => 'Static method calls',
+    'description' => t('The number of static method calls (delta).'),
+    'type' => 'integer',
+    'schema field' => 'staticMethodCalls',
+  );
+  $properties['instanceMethodCalls'] = array(
+    'label' => 'Instance method calls',
+    'description' => t('The number of instance method calls (delta).'),
+    'type' => 'integer',
+    'schema field' => 'instanceMethodCalls',
+  );
+  $properties['attributeAccesses'] = array(
+    'label' => 'Attribute accesses',
+    'description' => t('The number of attribute accesses (delta).'),
+    'type' => 'integer',
+    'schema field' => 'attributeAccesses',
+  );
+  $properties['staticAttributeAccesses'] = array(
+    'label' => 'Static attribute accesses',
+    'description' => t('The number of static attributes accesses (delta).'),
+    'type' => 'integer',
+    'schema field' => 'staticAttributeAccesses',
+  );
+  $properties['instanceAttributeAccesses'] = array(
+    'label' => 'Instance attribute accesses',
+    'description' => t('The number of instants attribute accesses (delta).'),
+    'type' => 'integer',
+    'schema field' => 'instanceAttributeAccesses',
+  );
+  $properties['globalAccesses'] = array(
+    'label' => '"Global accesses',
+    'description' => t('The number of global accesses (delta).'),
+    'type' => 'integer',
+    'schema field' => 'globalAccesses',
+  );
+  $properties['globalVariableAccesses'] = array(
+    'label' => 'Global variable accesses',
+    'description' => t('The number of global variable accesses (delta).'),
+    'type' => 'integer',
+    'schema field' => 'globalVariableAccesses',
+  );
+  $properties['superGlobalVariableAccesses'] = array(
+    'label' => 'Super global variable accesses',
+    'description' => t('The number of super global variable accesses'),
+    'type' => 'integer',
+    'schema field' => 'superGlobalVariableAccesses',
+  );
+  $properties['globalConstantAccesses'] = array(
+    'label' => 'Global constant accesses',
+    'description' => t('The number of global constant accesses (delta).'),
+    'type' => 'integer',
+    'schema field' => 'globalConstantAccesses',
+  );
+  $properties['directories'] = array(
+    'label' => 'Directories',
+    'description' => t('The number of directories (delta).'),
+    'type' => 'integer',
+    'schema field' => 'directories',
+  );
+  $properties['namespaces'] = array(
+    'label' => 'Namespaces',
+    'description' => t('The number of namespaces (delta).'),
+    'type' => 'integer',
+    'schema field' => 'namespaces',
+  );
+  $properties['ncloc'] = array(
+    'label' => 'ncloc',
+    'description' => t(''), // TODO:
+    'type' => 'integer',
+    'schema field' => 'ncloc',
+  );
+
+  return $info;
+}
+
+
+/**
  * Access callback.
  */
 function phploc_result_access($op, $phploc_result, $account = NULL, $entity_type = NULL) {
