@@ -29,6 +29,48 @@ function project_qa_gitcommit_entity_info() {
 
 
 /**
+ * Implements hook_entity_property_info().
+ */
+function project_qa_gitcommit_entity_property_info() {
+  $info = array();
+  $properties = &$info['project_qa_gitcommit']['properties'];
+
+  $properties['gcid'] = array(
+    'label' => 'Git commit ID',
+    'description' => t('The unique ID for the git commit.'),
+    'type' => 'integer',
+    'schema field' => 'gcid',
+  );
+  $properties['sha1'] = array(
+    'label' => 'SHA1',
+    'description' => t('The sha1 of the git commit'),
+    'type' => 'integer',
+    'schema field' => 'sha1',
+  );
+  $properties['pid'] = array(
+    'label' => 'Project ID',
+    'description' => t('The project repo id.'),
+    'type' => 'project_qa_repo',
+    'schema field' => 'pid',
+  );
+  $properties['timestamp'] = array(
+    'label' => 'Timestamp',
+    'description' => t('The Unix timestamp for the git commit.'),
+    'type' => 'date',
+    'schema field' => 'timestamp',
+  );
+  $properties['author'] = array(
+    'label' => 'Author',
+    'description' => t('The author of the git commit.'),
+    'type' => 'text',
+    'schema field' => 'author',
+  );
+
+  return $info;
+}
+
+
+/**
  * Access callback.
  */
 function project_qa_gitcommit_access($op, $project_qa_gitcommit, $account = NULL, $entity_type = NULL) {

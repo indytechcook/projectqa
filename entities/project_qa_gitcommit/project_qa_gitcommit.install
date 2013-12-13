@@ -13,7 +13,7 @@ function project_qa_gitcommit_schema() {
     'description' => 'The table for git commit meta info.',
     'fields' => array(
       'gcid' => array(
-        'description' => 'The primary identifier for a git commit.',
+        'description' => 'The unique ID for the git commit.',
         'type' => 'serial',
         'unsigned' => TRUE,
         'not null' => TRUE,
