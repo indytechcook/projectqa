@@ -1,0 +1,173 @@
+<?php
+
+/**
+ * @file
+ * phploc_result_delta_delta entity code.
+ */
+
+/**
+ * Implements hook_entity_info().
+ */
+function phploc_result_delta_entity_info() {
+  return array(
+    'phploc_result_delta' => array(
+      'label' => t('PHPLOC Result Delta'),
+      'entity class' => 'PhplocResultDelta',
+      'controller class' => 'PhplocResultDeltaController',
+      'base table' => 'phploc_result_delta',
+      'uri callback' => 'phploc_result_delta_uri',
+      'fieldable' => TRUE,
+      'entity keys' => array(
+        'id' => 'prdid',
+      ),
+      'static cache' => TRUE,
+      'module' => 'phploc_result_delta',
+      'views controller class' => 'EntityDefaultViewsController',
+    ),
+  );
+}
+
+
+/**
+ * Access callback.
+ */
+function phploc_result_delta_access($op, $phploc_result_delta, $account = NULL, $entity_type = NULL) {
+  global $user;
+  if (!isset($account)) {
+    $account = $user;
+  }
+  switch ($op) {
+    case 'create':
+      return user_access('administer phploc_result_delta entities', $account)
+          || user_access('create phploc_result_delta entities', $account);
+    case 'view':
+      return user_access('administer phploc_result_delta entities', $account)
+          || user_access('view phploc_result_delta entities', $account);
+    case 'edit':
+      return user_access('administer phploc_result_delta entities')
+          || user_access('edit any phploc_result_delta entities')
+          || (user_access('edit own phploc_result_delta entities') && ($task->uid == $account->uid));
+  }
+}
+
+
+/**
+ * Implements hook_permission().
+ */
+function phploc_result_delta_permission() {
+  $permissions = array(
+    'create phploc_result_delta entities' => array(
+      'title' => t('Create phploc_result_delta'),
+      'description' => t('Allows users to create phploc_result_delta.'),
+      'restrict access' => TRUE,
+    ),
+    'view phploc_result_delta entities' => array(
+      'title' => t('View phploc_result_delta'),
+      'description' => t('Allows users to view phploc_result_delta.'),
+      'restrict access' => TRUE,
+    ),
+    'edit any phploc_result_delta entities' => array(
+      'title' => t('Edit any phploc_result_delta'),
+      'description' => t('Allows users to edit any phploc_result_delta.'),
+      'restrict access' => TRUE,
+    ),
+    'edit own phploc_result_delta entities' => array(
+      'title' => t('Edit own phploc_result_delta'),
+      'description' => t('Allows users to edit own phploc_result_delta.'),
+      'restrict access' => TRUE,
+    ),
+  );
+  return $permissions;
+}
+
+
+/**
+ * PhplocResultDelta class.
+ */
+class PhplocResultDelta extends Entity {
+
+  /**
+   * The default label.
+   *
+   * @return int
+   *   phploc_result_delta prdid
+   */
+  protected function defaultLabel() {
+    return $this->prdid;
+  }
+
+  /**
+   * The default URI.
+   *
+   * @return array
+   *   An array containing the path to the phploc_result_delta
+   */
+  protected function defaultUri() {
+    return array('path' => 'phploc_result_delta/' . $this->identifier());
+  }
+}
+
+
+/**
+ * PhplocResultDeltaController class
+ */
+class PhplocResultDeltaController extends EntityAPIController {
+
+  /**
+   * Create a phploc_result_delta.
+   *
+   * @param array $values
+   *   The values of the phploc_result_delta object to create.
+   *
+   * @return
+   */
+  public function create(array $values = array()) {
+    return parent::create($values);
+  }
+
+  public function buildContent($entity, $view_mode = 'full', $langcode = NULL, $content = array()) {
+    $wrapper = entity_metadata_wrapper('phploc_result_delta', $entity);
+    return parent::buildContent($entity, $view_mode, $langcode, $content);
+  }
+}
+
+
+/**
+ * Load.
+ */
+function phploc_result_delta_load($prdid, $reset = FALSE) {
+  $phploc_result_deltas = phploc_result_delta_load_multiple(array($prdid), array(), $reset);
+  return reset($phploc_result_deltas);
+}
+
+
+/**
+ * Load multiple based on certain conditions.
+ */
+function phploc_result_delta_load_multiple($prdid = array(), $conditions = array(), $reset = FALSE) {
+  return entity_load('phploc_result_delta', $prdid, $conditions, $reset);
+}
+
+
+/**
+ * Save.
+ */
+function phploc_result_delta_save($phploc_result_delta) {
+  entity_save('phploc_result_delta', $phploc_result_delta);
+}
+
+
+/**
+ * Delete single.
+ */
+function phploc_result_delta_delete($phploc_result_delta) {
+  entity_delete('phploc_result_delta', entity_id('phploc_result_delta', $phploc_result_delta));
+}
+
+
+/**
+ * Delete multiple.
+ */
+function phploc_result_delta_delete_multiple($phploc_result_delta_ids) {
+  entity_delete_multiple('phploc_result_delta', $phploc_result_delta_ids);
+}

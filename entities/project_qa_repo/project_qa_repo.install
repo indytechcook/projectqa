@@ -8,8 +8,8 @@
 /**
  * Implements hook_schema().
  */
-function code_qa_project_schema() {
-  $schema['code_qa_project'] = array(
+function project_qa_repo_schema() {
+  $schema['project_qa_repo'] = array(
     'description' => 'The base table for projects to be evaluated.',
     'fields' => array(
       'pid' => array(
@@ -30,11 +30,11 @@ function code_qa_project_schema() {
         'not null' => TRUE,
         'description' => 'The URL of the repo',
       ),
-      'last_evaluated' => array(
-        'description' => 'The Unix timestamp of the last time this repo was evaluated.',
-        'type' => 'int',
+      'branch' => array(
+        'type' => 'varchar',
+        'length' => 256,
         'not null' => TRUE,
-        'default' => 0,
+        'description' => 'The branch to evaluate',
       ),
     ),
     'primary key' => array('pid'),

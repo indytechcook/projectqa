@@ -2,7 +2,7 @@
 
 /**
  * @file
- * PHPLOC_Result entity code.
+ * phploc_result entity code.
  */
 
 /**
@@ -29,7 +29,7 @@ function phploc_result_entity_info() {
 
 
 /**
- * Access callback for PHPLOC Result.
+ * Access callback.
  */
 function phploc_result_access($op, $phploc_result, $account = NULL, $entity_type = NULL) {
   global $user;
@@ -90,7 +90,7 @@ class PhplocResult extends Entity {
    * The default label.
    *
    * @return int
-   *   phploc_result id
+   *   phploc_result prid
    */
   protected function defaultLabel() {
     return $this->prid;
@@ -133,7 +133,7 @@ class PhplocResultController extends EntityAPIController {
 
 
 /**
- * Load a PHPLOC Result.
+ * Load.
  */
 function phploc_result_load($prid, $reset = FALSE) {
   $phploc_results = phploc_result_load_multiple(array($prid), array(), $reset);
@@ -142,7 +142,7 @@ function phploc_result_load($prid, $reset = FALSE) {
 
 
 /**
- * Load multiple PHPLOC Results based on certain conditions.
+ * Load multiple based on certain conditions.
  */
 function phploc_result_load_multiple($prid = array(), $conditions = array(), $reset = FALSE) {
   return entity_load('phploc_result', $prid, $conditions, $reset);
@@ -150,7 +150,7 @@ function phploc_result_load_multiple($prid = array(), $conditions = array(), $re
 
 
 /**
- * Save PHPLOC Result.
+ * Save.
  */
 function phploc_result_save($phploc_result) {
   entity_save('phploc_result', $phploc_result);
@@ -158,7 +158,7 @@ function phploc_result_save($phploc_result) {
 
 
 /**
- * Delete single PHPLOC Result.
+ * Delete single.
  */
 function phploc_result_delete($phploc_result) {
   entity_delete('phploc_result', entity_id('phploc_result', $phploc_result));
@@ -166,7 +166,7 @@ function phploc_result_delete($phploc_result) {
 
 
 /**
- * Delete multiple PHPLOC Results.
+ * Delete multiple.
  */
 function phploc_result_delete_multiple($phploc_result_ids) {
   entity_delete_multiple('phploc_result', $phploc_result_ids);

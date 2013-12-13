@@ -1,0 +1,187 @@
+<?php
+/**
+ * @file
+ * Logic pertaining to PHPLOC
+ */
+
+
+use SebastianBergmann\FinderFacade\FinderFacade;
+use SebastianBergmann\PHPLOC\Analyser;
+
+
+/**
+ * Generates the PHPLOC result set.
+ */
+function phploc_generate_phploc_resultset() {
+
+  // TODO: Move much of this logic up into project_qa
+  $projects = project_qa_get_projects();
+  $filepath = project_qa_get_filepath();
+
+  // TODO: Adjust to not key off name, use repo + branch
+  foreach ($projects as $project) {
+    $repo_path = $filepath . '/' . $project->name;
+
+    // Check for exisisting copy of the repo.
+    if (file_exists($repo_path)) {
+      project_qa_execute_git($repo_path, 'pull'); // Update repo.
+    }
+    else {
+      exec('git clone ' . $project->url . ' ' . $repo_path); // Get the repo.
+    }
+
+    project_qa_execute_git($repo_path, 'checkout ' . $project->branch);
+
+    phploc_phploc_analyize($project); // Execute PHPLOC on repo.
+
+  }
+}
+
+
+/**
+ * Kick off the analasys of the code.
+ *
+ * @param object $project
+ *   The project object of the code to evaluate.
+ */
+function phploc_phploc_analyize($project) {
+  composer_manager_register_autoloader();
+  $project_path = project_qa_get_filepath() . '/' . $project->name;
+
+  $excludes = array();
+  $names = array(
+    '*.php',
+    '*.info',
+    '*.module',
+    '*.install',
+    '*.inc',
+  );
+  $names_exclude = array();
+  $log_options = array();
+
+  // Get the last hash recorded for this project (if it exists).
+  $query = db_select('project_qa_gitcommit', 'cqgc')
+    ->fields('cqgc')
+    ->condition('pid', $project->pid, '=')
+    ->orderBy('timestamp', 'DESC')
+    ->range(0, 1);
+  $result = $query->execute();
+  $previous_data = $result->fetchAssoc();
+
+  if ($previous_data) {
+    $new_hash = project_qa_execute_git(
+      $project_path,
+      'log',
+      array(
+        '-n 1',
+        '--pretty=format:"%h"',
+        'HEAD',
+      )
+    );
+
+    $log_options[] = $previous_data['sha1'] . '..' . $new_hash[0];
+  }
+
+  $log_options[] = '--no-merges';
+  $log_options[] = '--date-order';
+  $log_options[] = '--reverse';
+  $log_options[] = '--format=medium';
+  $log_options[] = $project->branch;
+
+  $log = project_qa_execute_git($project_path, 'log', $log_options);
+  $revisions = project_qa_process_git_revisions($log);
+
+  $revisions_num = count($revisions);
+  $iteration_counter = 0;
+  foreach ($revisions as $revision) {
+    if ($iteration_counter % 50 == 0) {
+      echo 'Processing ' . $iteration_counter . ' of ' . $revisions_num . "\n";
+    }
+    $iteration_counter++;
+    // Check out this commit.
+    project_qa_execute_git(
+      $project_path,
+      'checkout',
+      array(
+        '--force',
+        '--quiet',
+        $revision['sha1'],
+        '2>&1',
+      )
+    );
+
+
+    // Get the author info for this commit.
+    $author = project_qa_execute_git(
+      $project_path,
+      'log',
+      array(
+        '-n 1',
+        '--pretty=format:"%ae"',
+        $revision['sha1'],
+      )
+    );
+
+    // TODO: Calculate the code diff size
+
+    // TODO: Capture tags
+
+
+    $git_commit_data = array(
+      'sha1' => $revision['sha1'],
+      'pid' => $project->pid,
+      'timestamp' => $revision['date']->getTimestamp(),
+      'author' => $author[0],
+    );
+    $git_commit = entity_create('project_qa_gitcommit', $git_commit_data);
+    $git_commit->save();
+
+
+    // Look for files to evaluate.
+    $directories = array();
+    $directory = realpath($project_path);
+    if ($directory) {
+      $directories[] = $directory;
+    }
+    $finder = new FinderFacade($directories, $excludes, $names, $names_exclude);
+    $files  = $finder->findFiles();
+
+
+    // Eval the code.
+    $analyser = new Analyser();
+    $data = $analyser->countFiles($files, TRUE);
+
+    $phploc_result = entity_create('phploc_result', $data);
+    $phploc_result->gcid = $git_commit->gcid;
+    $phploc_result->save();
+
+    // Generate the delta values.
+    foreach (array_keys($data) as $key) {
+
+      $previous_value = ($previous_data[$key] ? $previous_data[$key] : 0);
+      $delta = $data[$key] - $previous_value;
+
+      $delta_key = $key . '_delta';
+      $data_delta[$delta_key] = $delta;
+    }
+
+    $phploc_result_delta = entity_create('phploc_result_delta', $data_delta);
+    $phploc_result_delta->gcid = $git_commit->gcid;
+    $phploc_result_delta->save();
+
+
+    // Set up the previous data array for the next loop.
+    $previous_data = $data;
+  }
+
+  // Reset the repo back to HEAD.
+  project_qa_execute_git(
+    $project_path,
+    'checkout',
+    array(
+      '--force',
+      '--quiet',
+      $project->branch,
+    )
+  );
+}

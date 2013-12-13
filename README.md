@@ -1,11 +1,11 @@
-# Code QA
+# Project QA
 
 Tools to monitor the code of your Drupal site. Inspired by this Drupalcon Portland session: https://portland2013.drupal.org/node/1078
 
 ## Setup
 
-1. Use drush to install this module: `drush en code_qa -y` (using the UI will not handle all the dependencies)
-2. Go to <yoursite>/admin/code_qa
+1. Use drush to install this module: `drush en project_qa -y` (using the UI will not handle the composer dependencies)
+2. Go to <yoursite>/admin/project_qa
 3. Click 'Run PHPLOC'
 4. Click 'View results'
 

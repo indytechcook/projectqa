@@ -1,0 +1,13 @@
+name = PHPLOC
+description = Perform PHPLOC evaluations on code.
+core = 7.x
+package = Project QA
+
+dependencies[] = project_qa
+dependencies[] = composer_manager
+dependencies[] = entity
+dependencies[] = phploc_result
+dependencies[] = phploc_result_delta
+
+files[] = phploc.admin.inc
+files[] = phploc.drush.inc

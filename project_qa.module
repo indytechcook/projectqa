@@ -1,45 +1,12 @@
 <?php
 /**
  * @file
- * code_qa module implementation
+ * project_qa module implementation
  */
 
-module_load_include('inc', 'code_qa', 'code_qa.admin');
-module_load_include('inc', 'code_qa', 'code_qa.phploc');
+module_load_include('inc', 'project_qa', 'project_qa.admin');
+module_load_include('inc', 'project_qa', 'project_qa.phploc');
 
-/**
- * Implements hook_menu().
- */
-function code_qa_menu() {
-  $items = array();
-
-  $items['admin/code_qa'] = array(
-    'title' => 'Code QA',
-    'access callback' => TRUE,
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('code_qa_admin_page'),
-    'type' => MENU_CALLBACK,
-  );
-
-  $items['admin/code_qa/phploc'] = array(
-    'title' => 'Code QA: PHPLOC',
-    'access callback' => TRUE,
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('code_qa_phploc_report_page'),
-    'type' => MENU_CALLBACK,
-  );
-
-  $items['admin/code_qa/phploc/%'] = array(
-    'title' => 'Code QA: PHPLOC Details',
-    'access callback' => TRUE,
-    'page arguments' => array(1),
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('code_qa_phploc_report_module_page', 3),
-    'type' => MENU_CALLBACK,
-  );
-
-  return $items;
-}
 
 /**
  * Get a list of projects registered to track.
@@ -50,8 +17,8 @@ function code_qa_menu() {
  * @return array
  *   The list of projects.
  */
-function code_qa_get_projects($header = NULL) {
-  $query = db_select('code_qa_project', 'p')
+function project_qa_get_projects($header = NULL) {
+  $query = db_select('project_qa_repo', 'p')
     ->fields('p',
       array(
         'pid',
@@ -77,9 +44,9 @@ function code_qa_get_projects($header = NULL) {
  * @return string
  *   The system path to the repos location.
  */
-function code_qa_get_filepath() {
+function project_qa_get_filepath() {
   // TODO:
-  $path = '/tmp/code_qa';
+  $path = '/tmp/project_qa';
 
   return $path;
 }
@@ -100,7 +67,7 @@ function code_qa_get_filepath() {
  * @return array
  *   The output from the command.
  */
-function code_qa_execute_git($repo_path, $command, $parameters = array()) {
+function project_qa_execute_git($repo_path, $command, $parameters = array()) {
 
   $full_command = 'git --git-dir=' . $repo_path
     . '/.git --work-tree=' . $repo_path
@@ -121,7 +88,7 @@ function code_qa_execute_git($repo_path, $command, $parameters = array()) {
  * @return array
  *   The revisions information array.
  */
-function code_qa_process_git_revisions($git_log) {
+function project_qa_process_git_revisions($git_log) {
   $num_lines  = count($git_log);
   $revisions = array();
 
