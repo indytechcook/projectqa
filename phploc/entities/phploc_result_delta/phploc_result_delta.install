@@ -24,6 +24,12 @@ function phploc_result_delta_schema() {
         'unsigned' => TRUE,
         'not null' => TRUE,
       ),
+      'parent_gcid' => array(
+        'description' => 'The id of the parent git commit.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
       'files_delta' => array(
         'description' => '',
         'type' => 'int',

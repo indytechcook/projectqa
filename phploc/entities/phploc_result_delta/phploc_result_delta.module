@@ -47,6 +47,12 @@ function phploc_result_delta_entity_property_info() {
     'type' => 'project_qa_gitcommit',
     'schema field' => 'gcid',
   );
+  $properties['parent_gcid'] = array(
+    'label' => 'Parent git commit ID',
+    'description' => t('The unique ID for the parent git commit.'),
+    'type' => 'project_qa_gitcommit',
+    'schema field' => 'parent_gcid',
+  );
   $properties['files_delta'] = array(
     'label' => 'Files (delta)',
     'description' => t('The number of files (delta).'),

@@ -6,6 +6,8 @@
 
 module_load_include('inc', 'project_qa', 'project_qa.admin');
 module_load_include('inc', 'project_qa', 'project_qa.phploc');
+module_load_include('inc', 'project_qa', 'project_qa.git');
+
 
 
 /**
@@ -52,30 +54,98 @@ function project_qa_get_filepath() {
 }
 
 
-/**
- * Helper function to execute git commands against a repo.
- *
- * @param string $repo_path
- *   The system path where the repo is located.
- *
- * @param string $command
- *   The git command to run.
- *
- * @param array $parameters
- *   An array of parameters to pass to the git command.
- *
- * @return array
- *   The output from the command.
- */
-function project_qa_execute_git($repo_path, $command, $parameters = array()) {
+function project_qa_walk_projects() {
+  $projects = project_qa_get_projects();
+  $filepath = project_qa_get_filepath();
 
-  $full_command = 'git --git-dir=' . $repo_path
-    . '/.git --work-tree=' . $repo_path
-    . ' ' . $command . ' ' . implode(' ', $parameters);
+  foreach ($projects as $project) {
+    $repo_path = $filepath . '/' . $project->name;
+    project_qa_prep_repo($project, $repo_path);
 
-  exec($full_command, $output);
+    project_qa_walk_repo($project, $repo_path);
+  }
+}
 
-  return $output;
+
+function project_qa_prep_repo($project, $repo_path) {
+  // Check for exisisting copy of the repo.
+  if (file_exists($repo_path)) {
+    project_qa_execute_git($repo_path, 'pull'); // Update repo.
+  }
+  else {
+    exec('git clone ' . $project->url . ' ' . $repo_path); // Get the repo.
+  }
+  project_qa_execute_git($repo_path, 'checkout ' . $project->branch);
+}
+
+
+function project_qa_walk_repo($project, $repo_path) {
+  // Get the currently saved git commits
+  $query = db_select('project_qa_gitcommit', 'pqgc')
+    ->fields('pqgc', array('sha1'))
+    ->condition('pid', $project->pid, '=')
+    ->orderBy('timestamp', 'DESC');
+  $result = $query->execute();
+  $processed_commits = $result->fetchAllAssoc('sha1');
+  $processed_commits = array_keys($processed_commits);
+
+  $log_options[] = '--no-merges';
+  $log_options[] = '--date-order';
+  $log_options[] = '--reverse';
+  $log_options[] = '--format=medium';
+  $log_options[] = $project->branch;
+
+  $log = project_qa_execute_git($repo_path, 'log', $log_options);
+  $revisions = project_qa_process_git_revisions($log);
+  $all_hashes = array_keys($revisions);
+
+  $unprocessed_commits = array_diff($all_hashes, $processed_commits);
+  $total_num = count($unprocessed_commits);
+
+  $iteration_counter = 0;
+  foreach ($unprocessed_commits as $commit_hash) {
+    if ($iteration_counter % 50 == 0) {
+      echo 'Processing ' . $iteration_counter . ' of ' . $total_num . "\n";
+    }
+    $iteration_counter++;
+    // Check out this commit.
+    project_qa_execute_git(
+      $repo_path,
+      'checkout',
+      array(
+        '--force',
+        '--quiet',
+        $commit_hash,
+        '2>&1',
+      )
+    );
+
+    // TODO: Calculate the code diff size
+
+    $git_commit_data = array(
+      'sha1' => $commit_hash,
+      'pid' => $project->pid,
+      'timestamp' => $revisions[$commit_hash]['date']->getTimestamp(),
+      'author' => $revisions[$commit_hash]['author'],
+    );
+    $git_commit = entity_create('project_qa_gitcommit', $git_commit_data);
+    $git_commit->save();
+
+
+    module_invoke_all("eval_gitcommit", $repo_path, $git_commit);
+  }
+
+
+  // Reset the repo back to HEAD.
+  project_qa_execute_git(
+    $repo_path,
+    'checkout',
+    array(
+      '--force',
+      '--quiet',
+      $project->branch,
+    )
+  );
 }
 
 
@@ -102,17 +172,30 @@ function project_qa_process_git_revisions($git_log) {
       $author = implode(' ', array_slice($tmp, 1));
     }
     elseif (count($tmp) == 9 && $tmp[0] == 'Date:') {
-      $revisions[] = array(
+      $revisions[$sha1] = array(
         'author'  => $author,
         'date'    => \DateTime::createFromFormat(
           'D M j H:i:s Y O',
           implode(' ', array_slice($tmp, 3))
         ),
-        'sha1'    => $sha1,
         'message' => isset($git_log[$i + 2]) ? trim($git_log[$i + 2]) : '',
       );
     }
   }
 
   return $revisions;
+}
+
+
+/**
+ * Processes the git response into an array of tag data.
+ *
+ * @param array $git_tags
+ *   The git tags response to process.
+ *
+ * @return array
+ *   The tags information array.
+ */
+function project_qa_process_git_tags($git_log) {
+
 }

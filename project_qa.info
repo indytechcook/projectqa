@@ -9,3 +9,5 @@ dependencies[] = project_qa_repo
 dependencies[] = project_qa_gitcommit
 
 files[] = project_qa.admin.inc
+files[] = project_qa.drush.inc
+
