@@ -5,14 +5,6 @@ Tools to monitor the code of your Drupal site. Inspired by this Drupalcon Portla
 ## Setup
 
 1. Use drush to install this module: `drush en project_qa -y` (using the UI will not handle the composer dependencies)
-2. Go to <yoursite>/admin/project_qa
-3. Click 'Run PHPLOC'
-4. Click 'View results'
-
-Want to see what it looks like?
-
-Summary screen:
-https://www.evernote.com/shard/s1/sh/9b4d6f11-8664-4ded-a5dc-36a06a484bdf/e056d75e10045f16199756a79d104af0
-
-Module detail screen:
-https://www.evernote.com/shard/s1/sh/71ef0e16-f081-49da-8eed-3cdb109dcbce/b2c0d28705cc767e76a87cd52a2dadd2
+2. Add a repo to track to the project_qa_repo table
+3. Run `drush pqa`
+4. Use views to create reports on the data
