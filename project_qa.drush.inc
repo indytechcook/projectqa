@@ -33,6 +33,5 @@ function project_qa_drush_command() {
  * Callback function for drush phploc.
  */
 function drush_project_qa_pqa($arg1 = NULL) {
-  drush_log('Running Project QA', 'ok');
   project_qa_walk_projects();
 }

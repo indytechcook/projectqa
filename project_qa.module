@@ -59,9 +59,10 @@ function project_qa_walk_projects() {
   $filepath = project_qa_get_filepath();
 
   foreach ($projects as $project) {
+    drush_print(t('Processing ' . $project->name), 0);
+
     $repo_path = $filepath . '/' . $project->name;
     project_qa_prep_repo($project, $repo_path);
-
     project_qa_walk_repo($project, $repo_path);
   }
 }
@@ -81,6 +82,7 @@ function project_qa_prep_repo($project, $repo_path) {
 
 
 function project_qa_walk_repo($project, $repo_path) {
+  drush_print(t('walking repo'), 1);
   // Get the currently saved git commits
   $query = db_select('project_qa_gitcommit', 'pqgc')
     ->fields('pqgc', array('sha1'))
@@ -106,7 +108,14 @@ function project_qa_walk_repo($project, $repo_path) {
   $iteration_counter = 0;
   foreach ($unprocessed_commits as $commit_hash) {
     if ($iteration_counter % 50 == 0) {
-      echo 'Processing ' . $iteration_counter . ' of ' . $total_num . "\n";
+      drush_print(
+        t('commit @num of @total',
+          array(
+            '@num' => $iteration_counter,
+            '@total' => $total_num)),
+        1);
+
+
     }
     $iteration_counter++;
     // Check out this commit.
@@ -201,7 +210,7 @@ function project_qa_process_git_revisions($git_log) {
  *   The tags information array.
  */
 function project_qa_process_git_tags($repo_path, $pid) {
-  print_r("\nProcessing tags\n");
+  drush_print(t('walking tags'), 1);
   $all_tags = project_qa_get_all_tags($repo_path);
 
   $tag_data = array();
