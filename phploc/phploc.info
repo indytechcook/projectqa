@@ -10,4 +10,3 @@ dependencies[] = phploc_result
 dependencies[] = phploc_result_delta
 
 files[] = phploc.admin.inc
-files[] = phploc.drush.inc

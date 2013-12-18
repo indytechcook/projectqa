@@ -75,6 +75,7 @@ function project_qa_prep_repo($project, $repo_path) {
   else {
     exec('git clone ' . $project->url . ' ' . $repo_path); // Get the repo.
   }
+
   project_qa_execute_git($repo_path, 'checkout ' . $project->branch);
 }
 
@@ -146,6 +147,9 @@ function project_qa_walk_repo($project, $repo_path) {
       $project->branch,
     )
   );
+
+  // Refresh the git tags.
+  project_qa_process_git_tags($repo_path, $project->pid);
 }
 
 
@@ -196,6 +200,58 @@ function project_qa_process_git_revisions($git_log) {
  * @return array
  *   The tags information array.
  */
-function project_qa_process_git_tags($git_log) {
+function project_qa_process_git_tags($repo_path, $pid) {
+  print_r("\nProcessing tags\n");
+  $all_tags = project_qa_get_all_tags($repo_path);
 
+  $tag_data = array();
+  foreach ($all_tags as $tag) {
+    $data = split(' refs/tags/', $tag);
+    $tag_data[$data[0]] = $data[1];
+  }
+
+  // Get all processed tags
+  $query = db_select('project_qa_gittag', 'pqgt')
+    ->fields('pqgt', array('gcid', 'tagname'))
+    ->fields('pqgc', array('sha1'))
+    ->condition('pid', $pid, '=');
+  $query->innerJoin('project_qa_gitcommit', 'pqgc', 'pqgc.gcid = pqgt.gcid');
+  $results = $query->execute();
+
+  $processed_tags = $results->fetchAllAssoc('tagname');
+  $processed_tag_names = array_keys($processed_tags);
+
+  foreach ($tag_data as $key => $value) {
+    $data = array();
+    if($processed_tags[$value]->tagname != $value) {
+      $gcid = project_qa_get_commit_id($key);
+
+      if(isset($gcid)) { // Only save tags that point to commits we're tracking
+        $data['gcid'] = $gcid;
+        // $data['tagger'] = ?
+        // $data['timestamp'] = ?
+        $data['tagname'] = $value;
+
+        $git_tag = entity_create('project_qa_gittag', $data);
+        $git_tag->save();
+      }
+    }
+  }
+
+
+
+  // TODO: remove deleted tags
 }
+
+
+function project_qa_get_commit_id($hash) {
+  $query = db_select('project_qa_gitcommit', 'pqgc')
+    ->fields('pqgc', array('gcid', 'sha1'))
+    ->condition('pqgc.sha1', $hash, '=');
+  $response = $query->execute();
+  $result = $response->fetchAssoc();
+  return $result['gcid'];
+}
+
+
+

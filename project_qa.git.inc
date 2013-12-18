@@ -41,3 +41,18 @@ function project_qa_get_parent_hash($repo_path, $hash) {
 
   return $parent;
 }
+
+
+function project_qa_get_all_tags($repo_path) {
+
+  // git show-ref --tags -d
+
+  $command = 'show-ref';
+  $parameters = array(
+    '--tags',
+    '-d',
+  );
+  $tags = project_qa_execute_git($repo_path, $command, $parameters);
+
+  return $tags;
+}
