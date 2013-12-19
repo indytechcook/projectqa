@@ -237,8 +237,8 @@ function project_qa_process_git_tags($repo_path, $pid) {
 
       if(isset($gcid)) { // Only save tags that point to commits we're tracking
         $data['gcid'] = $gcid;
-        // $data['tagger'] = ?
-        // $data['timestamp'] = ?
+        $data['tagger'] = 'person'; // TODO:
+        $data['timestamp'] = 0; // TODO: 
         $data['tagname'] = $value;
 
         $git_tag = entity_create('project_qa_gittag', $data);
