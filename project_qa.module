@@ -247,8 +247,6 @@ function project_qa_process_git_tags($repo_path, $pid) {
     }
   }
 
-
-
   // TODO: remove deleted tags
 }
 
