@@ -12,8 +12,8 @@ function project_qa_repo_entity_info() {
   return array(
     'project_qa_repo' => array(
       'label' => t('Project QA Project'),
-      'entity class' => 'ProjectQAProject',
-      'controller class' => 'ProjectQAProjectController',
+      'entity class' => 'ProjectQARepo',
+      'controller class' => 'ProjectQARepoController',
       'base table' => 'project_qa_repo',
       'uri callback' => 'project_qa_repo_uri',
       'fieldable' => TRUE,
@@ -68,9 +68,9 @@ function project_qa_repo_permission() {
 
 
 /**
- * ProjectQAProject class.
+ * ProjectQARepo class.
  */
-class ProjectQAProject extends Entity {
+class ProjectQARepo extends Entity {
 
   /**
    * The default label.
@@ -95,6 +95,6 @@ class ProjectQAProject extends Entity {
 
 
 /**
- * ProjectQAProjectController class
+ * ProjectQARepoController class
  */
-class ProjectQAProjectController extends EntityAPIController {}
+class ProjectQARepoController extends EntityAPIController {}
