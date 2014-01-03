@@ -19,7 +19,6 @@ use SebastianBergmann\PHPLOC\Analyser;
  */
 function phploc_eval_gitcommit($repo_path, $git_commit) {
   composer_manager_register_autoloader();
-  $project_path = project_qa_get_filepath() . '/' . $project->name;
 
   $excludes = array();
   $names = array(
@@ -30,7 +29,6 @@ function phploc_eval_gitcommit($repo_path, $git_commit) {
     '*.inc',
   );
   $names_exclude = array();
-  $log_options = array();
 
   // Look for files to evaluate.
   $directories = array();

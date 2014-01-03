@@ -9,7 +9,6 @@ module_load_include('inc', 'project_qa', 'project_qa.phploc');
 module_load_include('inc', 'project_qa', 'project_qa.git');
 
 
-
 /**
  * Get a list of projects registered to track.
  *
@@ -243,7 +242,6 @@ function project_qa_process_git_tags($repo_path, $pid) {
   $results = $query->execute();
 
   $processed_tags = $results->fetchAllAssoc('tagname');
-  $processed_tag_names = array_keys($processed_tags);
 
   foreach ($tag_data as $key => $value) {
     $data = array();
