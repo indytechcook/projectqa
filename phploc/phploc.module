@@ -85,7 +85,6 @@ function phploc_eval_gitcommit($repo_path, $git_commit) {
 function phploc_query_alter(&$query) {
   if ($query->hasTag('project_qa_complexity')) {
 
-
     /*
      * This is the query ultimately needed:
      *

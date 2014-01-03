@@ -79,7 +79,7 @@ function phploc_result_entity_property_info() {
   );
   $properties['llocGlobal'] = array(
     'label' => 'llocGlobal',
-    'description' => t('llocGlobal'), // TODO:
+    'description' => t('llocGlobal'),
     'type' => 'integer',
     'schema field' => 'llocGlobal',
   );
@@ -91,13 +91,13 @@ function phploc_result_entity_property_info() {
   );
   $properties['ccn'] = array(
     'label' => 'ccn',
-    'description' => t('ccn'), // TODO:
+    'description' => t('ccn'),
     'type' => 'integer',
     'schema field' => 'ccn',
   );
   $properties['ccnMethods'] = array(
     'label' => 'ccnMethods',
-    'description' => t('ccnMethods'), // TODO:
+    'description' => t('ccnMethods'),
     'type' => 'integer',
     'schema field' => 'ccnMethods',
   );
@@ -211,31 +211,31 @@ function phploc_result_entity_property_info() {
   );
   $properties['ccnByLloc'] = array(
     'label' => 'ccnByLloc',
-    'description' => t('ccnByLloc'), // TODO:
+    'description' => t('ccnByLloc'),
     'type' => 'decimal',
     'schema field' => 'ccnByLloc',
   );
   $properties['ccnByNom'] = array(
     'label' => 'ccnByNom',
-    'description' => t('ccnByNom'), // TODO:
+    'description' => t('ccnByNom'),
     'type' => 'decimal',
     'schema field' => 'ccnByNom',
   );
   $properties['llocByNoc'] = array(
     'label' => 'llocByNoc',
-    'description' => t('llocByNoc'), // TODO:
+    'description' => t('llocByNoc'),
     'type' => 'integer',
     'schema field' => 'llocByNoc',
   );
   $properties['llocByNom'] = array(
     'label' => 'llocByNom',
-    'description' => t('llocByNom'), // TODO:
+    'description' => t('llocByNom'),
     'type' => 'integer',
     'schema field' => 'llocByNom',
   );
   $properties['llocByNof'] = array(
     'label' => 'llocByNof',
-    'description' => t('llocByNof'), // TODO:
+    'description' => t('llocByNof'),
     'type' => 'integer',
     'schema field' => 'llocByNof',
   );
@@ -313,7 +313,7 @@ function phploc_result_entity_property_info() {
   );
   $properties['ncloc'] = array(
     'label' => 'ncloc',
-    'description' => t('ncloc'), // TODO:
+    'description' => t('ncloc'),
     'type' => 'integer',
     'schema field' => 'ncloc',
   );

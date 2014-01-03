@@ -145,7 +145,7 @@ function project_qa_walk_repo($project, $repo_path) {
       )
     );
 
-    // TODO: Calculate the code diff size
+    // TODO: Calculate the code diff size.
     $git_commit_data = array(
       'sha1' => $commit_hash,
       'pid' => $project->pid,
@@ -264,7 +264,7 @@ function project_qa_process_git_tags($repo_path, $pid) {
     }
   }
 
-  // TODO: remove deleted tags
+  // TODO: remove deleted tags.
 }
 
 

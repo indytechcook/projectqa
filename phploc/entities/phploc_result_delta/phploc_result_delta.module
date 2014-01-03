@@ -85,7 +85,7 @@ function phploc_result_delta_entity_property_info() {
   );
   $properties['llocGlobal_delta'] = array(
     'label' => 'llocGlobal (delta)',
-    'description' => t('llocGlobal_delta'), // TODO:
+    'description' => t('llocGlobal_delta'),
     'type' => 'integer',
     'schema field' => 'llocGlobal_delta',
   );
@@ -97,13 +97,13 @@ function phploc_result_delta_entity_property_info() {
   );
   $properties['ccn_delta'] = array(
     'label' => 'ccn (delta)',
-    'description' => t('ccn_delta'), // TODO:
+    'description' => t('ccn_delta'),
     'type' => 'integer',
     'schema field' => 'ccn_delta',
   );
   $properties['ccnMethods_delta'] = array(
     'label' => 'ccnMethods (delta)',
-    'description' => t('ccnMethods_delta'), // TODO:
+    'description' => t('ccnMethods_delta'),
     'type' => 'integer',
     'schema field' => 'ccnMethods_delta',
   );
@@ -217,31 +217,31 @@ function phploc_result_delta_entity_property_info() {
   );
   $properties['ccnByLloc_delta'] = array(
     'label' => 'ccnByLloc (delta)',
-    'description' => t('ccnByLloc_delta'), // TODO:
+    'description' => t('ccnByLloc_delta'),
     'type' => 'decimal',
     'schema field' => 'ccnByLloc_delta',
   );
   $properties['ccnByNom_delta'] = array(
     'label' => 'ccnByNom (delta)',
-    'description' => t('ccnByNom_delta'), // TODO:
+    'description' => t('ccnByNom_delta'),
     'type' => 'decimal',
     'schema field' => 'ccnByNom_delta',
   );
   $properties['llocByNoc_delta'] = array(
     'label' => 'llocByNoc (delta)',
-    'description' => t('llocByNoc_delta'), // TODO:
+    'description' => t('llocByNoc_delta'),
     'type' => 'integer',
     'schema field' => 'llocByNoc_delta',
   );
   $properties['llocByNom_delta'] = array(
     'label' => 'llocByNom (delta)',
-    'description' => t('llocByNom_delta'), // TODO:
+    'description' => t('llocByNom_delta'),
     'type' => 'integer',
     'schema field' => 'llocByNom_delta',
   );
   $properties['llocByNof_delta'] = array(
     'label' => 'llocByNof (delta)',
-    'description' => t('llocByNof_delta'), // TODO:
+    'description' => t('llocByNof_delta'),
     'type' => 'integer',
     'schema field' => 'llocByNof_delta',
   );
@@ -319,7 +319,7 @@ function phploc_result_delta_entity_property_info() {
   );
   $properties['ncloc_delta'] = array(
     'label' => 'ncloc (delta)',
-    'description' => t('ncloc_delta'), // TODO:
+    'description' => t('ncloc_delta'),
     'type' => 'integer',
     'schema field' => 'ncloc_delta',
   );
