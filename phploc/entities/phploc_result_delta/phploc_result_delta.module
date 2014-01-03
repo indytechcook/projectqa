@@ -425,6 +425,9 @@ class PhplocResultDeltaController extends EntityAPIController {
     return parent::create($values);
   }
 
+  /**
+   * Implementing buildContent().
+   */
   public function buildContent($entity, $view_mode = 'full', $langcode = NULL, $content = array()) {
     $wrapper = entity_metadata_wrapper('phploc_result_delta', $entity);
     return parent::buildContent($entity, $view_mode, $langcode, $content);

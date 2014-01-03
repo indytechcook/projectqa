@@ -7,6 +7,16 @@
 use SebastianBergmann\FinderFacade\FinderFacade;
 use SebastianBergmann\PHPLOC\Analyser;
 
+
+/**
+ * Performs PHPLOC on a commit.
+ *
+ * @param $repo_path string
+ *   The system path where the repo is located.
+ *
+ * @param $git_commit string
+ *   The hash of the commit to process.
+ */
 function phploc_eval_gitcommit($repo_path, $git_commit) {
   composer_manager_register_autoloader();
   $project_path = project_qa_get_filepath() . '/' . $project->name;
@@ -42,7 +52,7 @@ function phploc_eval_gitcommit($repo_path, $git_commit) {
   // Generate the delta values.
   $parent_hash = project_qa_get_parent_hash($repo_path, $git_commit->sha1);
 
-  if(count($parent_hash)>0) {
+  if (count($parent_hash)>0) {
     // Grab the parent hash data
     $query = db_select('phploc_result', 'pr')
       ->fields('pr')
@@ -53,7 +63,7 @@ function phploc_eval_gitcommit($repo_path, $git_commit) {
 
     $previous_data = $result->fetchAll();
 
-    if(count($previous_data)>0) {
+    if (count($previous_data)>0) {
       foreach (array_keys($data) as $key) {
         $delta = $data[$key] - $previous_data[0]->$key;
         $delta_key = $key . '_delta';
@@ -75,11 +85,11 @@ function phploc_eval_gitcommit($repo_path, $git_commit) {
  * Implements hook_query_alter().
  */
 function phploc_query_alter(&$query) {
-  if($query->hasTag('project_qa_complexity')){ 
+  if ($query->hasTag('project_qa_complexity')) {
 
     // This is the query ultimately needed:
-  
-    /** 
+
+    /*
      * select project_qa_repo.name, phploc_result.ccnByLloc, phploc_result.ccnByNom, project_qa_gitcommit.timestamp
      * from project_qa_gitcommit
      * inner join project_qa_repo on project_qa_gitcommit.pid=project_qa_repo.pid

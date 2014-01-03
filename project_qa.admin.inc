@@ -40,7 +40,7 @@ function project_qa_repo_list(&$form) {
     );
   }
 
-  if(!isset($rows)) {
+  if (!isset($rows)) {
     drupal_set_message(t('No projects have been added.'));
     drupal_set_message(t('For now, to add/remove projects you need to edit the project_qa_repo table.'));
     return;

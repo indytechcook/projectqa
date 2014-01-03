@@ -1,4 +1,8 @@
 <?php
+/**
+ * @file
+ * Git related functions.
+ */
 
 /**
  * Helper function to execute git commands against a repo.
@@ -26,7 +30,18 @@ function project_qa_execute_git($repo_path, $command, $parameters = array()) {
   return $output;
 }
 
-
+/**
+ * Retrieves the hash of the parent commit.
+ *
+ * @param string $repo_path
+ *   The system path where the repo is located.
+ *
+ * @param string $hash
+ *   The hash of the commit to find the parent for.
+ *
+ * @return string
+ *   The hash of the parent commit.
+ */
 function project_qa_get_parent_hash($repo_path, $hash) {
 
   // http://paulboxley.com/blog/2011/06/git-caret-and-tilde
@@ -43,6 +58,15 @@ function project_qa_get_parent_hash($repo_path, $hash) {
 }
 
 
+/**
+ * Retrieves all the git tags for a repo.
+ *
+ * @param string $repo_path
+ *   The system path where the repo is located.
+ *
+ * @return array
+ *   An array of tags in the repo.
+ */
 function project_qa_get_all_tags($repo_path) {
 
   // git show-ref --tags -d

@@ -166,6 +166,9 @@ class CodeQAGitTagController extends EntityAPIController {
     return parent::create($values);
   }
 
+  /**
+   * Implementing buildContent().
+   */
   public function buildContent($entity, $view_mode = 'full', $langcode = NULL, $content = array()) {
     $wrapper = entity_metadata_wrapper('project_qa_gittag', $entity);
     return parent::buildContent($entity, $view_mode, $langcode, $content);

@@ -54,6 +54,9 @@ function project_qa_get_filepath() {
 }
 
 
+/**
+ * Walks through all projects currently tracked.
+ */
 function project_qa_walk_projects() {
   $projects = project_qa_get_projects();
   $filepath = project_qa_get_filepath();
@@ -68,6 +71,9 @@ function project_qa_walk_projects() {
 }
 
 
+/**
+ * Preps the repo to be processed. Clones or updates and does appropriate checkout.
+ */
 function project_qa_prep_repo($project, $repo_path) {
   // Check for exisisting copy of the repo.
   if (file_exists($repo_path)) {
@@ -81,6 +87,15 @@ function project_qa_prep_repo($project, $repo_path) {
 }
 
 
+/**
+ * Walks the specified repo (all commits in history).
+ *
+ * @param $project object
+ *   The project object.
+ *
+ * @param $repo_path string
+ *   The system path where the repo is located.
+ */
 function project_qa_walk_repo($project, $repo_path) {
   drush_print(t('walking repo'), 1);
   // Get the currently saved git commits
@@ -232,13 +247,13 @@ function project_qa_process_git_tags($repo_path, $pid) {
 
   foreach ($tag_data as $key => $value) {
     $data = array();
-    if($processed_tags[$value]->tagname != $value) {
+    if ($processed_tags[$value]->tagname != $value) {
       $gcid = project_qa_get_commit_id($key);
 
-      if(isset($gcid)) { // Only save tags that point to commits we're tracking
+      if (isset($gcid)) { // Only save tags that point to commits we're tracking
         $data['gcid'] = $gcid;
         $data['tagger'] = 'person'; // TODO:
-        $data['timestamp'] = 0; // TODO: 
+        $data['timestamp'] = 0; // TODO:
         $data['tagname'] = $value;
 
         $git_tag = entity_create('project_qa_gittag', $data);
@@ -251,6 +266,15 @@ function project_qa_process_git_tags($repo_path, $pid) {
 }
 
 
+/**
+ * Retrieves the ID of a commit.
+ *
+ * @param $hash string
+ *   The commit hash to look up.
+ *
+ * @return int
+ *   The ID.
+ */
 function project_qa_get_commit_id($hash) {
   $query = db_select('project_qa_gitcommit', 'pqgc')
     ->fields('pqgc', array('gcid', 'sha1'))
@@ -259,6 +283,3 @@ function project_qa_get_commit_id($hash) {
   $result = $response->fetchAssoc();
   return $result['gcid'];
 }
-
-
-
