@@ -45,7 +45,6 @@ function project_qa_execute_git($repo_path, $command, $parameters = array()) {
 function project_qa_get_parent_hash($repo_path, $hash) {
 
   // http://paulboxley.com/blog/2011/06/git-caret-and-tilde
-
   $command = 'log';
   $parameters = array(
     '--pretty="format:%H"',
@@ -69,8 +68,7 @@ function project_qa_get_parent_hash($repo_path, $hash) {
  */
 function project_qa_get_all_tags($repo_path) {
 
-  // git show-ref --tags -d
-
+  // Git show-ref --tags -d
   $command = 'show-ref';
   $parameters = array(
     '--tags',

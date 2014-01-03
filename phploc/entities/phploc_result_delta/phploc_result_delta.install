@@ -365,7 +365,6 @@ function phploc_result_delta_schema() {
 
 /**
  * Alters the project_qa_repo schema. Setting to [en/dis]able phploc processing.
- *   Not currently implemented.
  */
 function phploc_result_delta_schema_alter(&$schema) {
   $schema['project_qa_repo']['fields']['phploc'] = array(

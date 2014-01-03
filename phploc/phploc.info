@@ -8,5 +8,3 @@ dependencies[] = composer_manager
 dependencies[] = entity
 dependencies[] = phploc_result
 dependencies[] = phploc_result_delta
-
-files[] = phploc.admin.inc

@@ -11,10 +11,10 @@ use SebastianBergmann\PHPLOC\Analyser;
 /**
  * Performs PHPLOC on a commit.
  *
- * @param $repo_path string
+ * @param string $repo_path
  *   The system path where the repo is located.
  *
- * @param $git_commit string
+ * @param string $git_commit
  *   The hash of the commit to process.
  */
 function phploc_eval_gitcommit($repo_path, $git_commit) {
@@ -50,8 +50,8 @@ function phploc_eval_gitcommit($repo_path, $git_commit) {
   // Generate the delta values.
   $parent_hash = project_qa_get_parent_hash($repo_path, $git_commit->sha1);
 
-  if (count($parent_hash)>0) {
-    // Grab the parent hash data
+  if (count($parent_hash) > 0) {
+    // Grab the parent hash data.
     $query = db_select('phploc_result', 'pr')
       ->fields('pr')
       ->fields('pqgc', array('sha1'))
@@ -61,7 +61,7 @@ function phploc_eval_gitcommit($repo_path, $git_commit) {
 
     $previous_data = $result->fetchAll();
 
-    if (count($previous_data)>0) {
+    if (count($previous_data) > 0) {
       foreach (array_keys($data) as $key) {
         $delta = $data[$key] - $previous_data[0]->$key;
         $delta_key = $key . '_delta';
@@ -85,15 +85,21 @@ function phploc_eval_gitcommit($repo_path, $git_commit) {
 function phploc_query_alter(&$query) {
   if ($query->hasTag('project_qa_complexity')) {
 
-    // This is the query ultimately needed:
 
     /*
-     * select project_qa_repo.name, phploc_result.ccnByLloc, phploc_result.ccnByNom, project_qa_gitcommit.timestamp
+     * This is the query ultimately needed:
+     *
+     * select project_qa_repo.name, phploc_result.ccnByLloc,
+     *   phploc_result.ccnByNom, project_qa_gitcommit.timestamp
      * from project_qa_gitcommit
-     * inner join project_qa_repo on project_qa_gitcommit.pid=project_qa_repo.pid
-     * inner join phploc_result on project_qa_gitcommit.gcid=phploc_result.gcid
+     * inner join project_qa_repo
+     *   on project_qa_gitcommit.pid=project_qa_repo.pid
+     * inner join phploc_result
+     *   on project_qa_gitcommit.gcid=phploc_result.gcid
      * inner join (
-     *   select max(timestamp) as max_t, pid from project_qa_gitcommit group by pid
+     *   select max(timestamp) as max_t, pid
+     *   from project_qa_gitcommit
+     *   group by pid
      * ) max_t
      * on max_t.max_t = project_qa_gitcommit.timestamp;
      */
@@ -102,6 +108,7 @@ function phploc_query_alter(&$query) {
     $subquery->fields('gc', array('gcid', 'pid', 'timestamp'));
     $subquery->addExpression('MAX(timestamp)', 'max_t');
     $subquery->groupBy('gc.pid');
-    $query->addJoin('INNER', $subquery, 'sq', 'sq.max_t=project_qa_gitcommit_phploc_result.timestamp');
+    $query->addJoin('INNER', $subquery, 'sq',
+      'sq.max_t=project_qa_gitcommit_phploc_result.timestamp');
   }
 }

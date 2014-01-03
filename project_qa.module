@@ -61,7 +61,7 @@ function project_qa_walk_projects() {
   $filepath = project_qa_get_filepath();
 
   foreach ($projects as $project) {
-    drush_print(t('Processing ' . $project->name), 0);
+    drush_print(t('Processing @name', array('@name' => $project->name)), 0);
 
     $repo_path = $filepath . '/' . $project->name;
     project_qa_prep_repo($project, $repo_path);
@@ -71,17 +71,20 @@ function project_qa_walk_projects() {
 
 
 /**
- * Preps the repo to be processed. Clones or updates and does appropriate checkout.
+ * Preps the repo to be processed. Clones/updates and does appropriate checkout.
  */
 function project_qa_prep_repo($project, $repo_path) {
   // Check for exisisting copy of the repo.
   if (file_exists($repo_path)) {
-    project_qa_execute_git($repo_path, 'pull'); // Update repo.
+    // Update repo.
+    project_qa_execute_git($repo_path, 'pull');
   }
   else {
-    exec('git clone ' . $project->url . ' ' . $repo_path); // Get the repo.
+    // Get the repo.
+    exec('git clone ' . $project->url . ' ' . $repo_path);
   }
 
+  // Checkout the specified branch.
   project_qa_execute_git($repo_path, 'checkout ' . $project->branch);
 }
 
@@ -89,15 +92,15 @@ function project_qa_prep_repo($project, $repo_path) {
 /**
  * Walks the specified repo (all commits in history).
  *
- * @param $project object
+ * @param object $project
  *   The project object.
  *
- * @param $repo_path string
+ * @param string $repo_path
  *   The system path where the repo is located.
  */
 function project_qa_walk_repo($project, $repo_path) {
   drush_print(t('walking repo'), 1);
-  // Get the currently saved git commits
+  // Get the currently saved git commits.
   $query = db_select('project_qa_gitcommit', 'pqgc')
     ->fields('pqgc', array('sha1'))
     ->condition('pid', $project->pid, '=')
@@ -128,8 +131,6 @@ function project_qa_walk_repo($project, $repo_path) {
             '@num' => $iteration_counter,
             '@total' => $total_num)),
         1);
-
-
     }
     $iteration_counter++;
     // Check out this commit.
@@ -145,7 +146,6 @@ function project_qa_walk_repo($project, $repo_path) {
     );
 
     // TODO: Calculate the code diff size
-
     $git_commit_data = array(
       'sha1' => $commit_hash,
       'pid' => $project->pid,
@@ -155,10 +155,8 @@ function project_qa_walk_repo($project, $repo_path) {
     $git_commit = entity_create('project_qa_gitcommit', $git_commit_data);
     $git_commit->save();
 
-
     module_invoke_all("eval_gitcommit", $repo_path, $git_commit);
   }
-
 
   // Reset the repo back to HEAD.
   project_qa_execute_git(
@@ -217,8 +215,11 @@ function project_qa_process_git_revisions($git_log) {
 /**
  * Processes the git response into an array of tag data.
  *
- * @param array $git_tags
- *   The git tags response to process.
+ * @param array $repo_path
+ *   The system path where the repo is located.
+ *
+ * @param array $pid
+ *   The ID of the project.
  *
  * @return array
  *   The tags information array.
@@ -229,11 +230,11 @@ function project_qa_process_git_tags($repo_path, $pid) {
 
   $tag_data = array();
   foreach ($all_tags as $tag) {
-    $data = split(' refs/tags/', $tag);
+    $data = explode(' refs/tags/', $tag);
     $tag_data[$data[0]] = $data[1];
   }
 
-  // Get all processed tags
+  // Get all processed tags.
   $query = db_select('project_qa_gittag', 'pqgt')
     ->fields('pqgt', array('gcid', 'tagname'))
     ->fields('pqgc', array('sha1'))
@@ -248,10 +249,13 @@ function project_qa_process_git_tags($repo_path, $pid) {
     if ($processed_tags[$value]->tagname != $value) {
       $gcid = project_qa_get_commit_id($key);
 
-      if (isset($gcid)) { // Only save tags that point to commits we're tracking
+      // Only save tags that point to commits we're tracking.
+      if (isset($gcid)) {
         $data['gcid'] = $gcid;
-        $data['tagger'] = 'person'; // TODO:
-        $data['timestamp'] = 0; // TODO:
+        // TODO:
+        $data['tagger'] = 'person';
+        // TODO:
+        $data['timestamp'] = 0;
         $data['tagname'] = $value;
 
         $git_tag = entity_create('project_qa_gittag', $data);
@@ -267,7 +271,7 @@ function project_qa_process_git_tags($repo_path, $pid) {
 /**
  * Retrieves the ID of a commit.
  *
- * @param $hash string
+ * @param string $hash
  *   The commit hash to look up.
  *
  * @return int
