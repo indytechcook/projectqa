@@ -4,13 +4,8 @@
  * Logic pertaining to PHPLOC
  */
 
-
 use SebastianBergmann\FinderFacade\FinderFacade;
 use SebastianBergmann\PHPLOC\Analyser;
-
-
-// git show-ref --tags -d
-
 
 function phploc_eval_gitcommit($repo_path, $git_commit) {
   composer_manager_register_autoloader();
@@ -72,5 +67,33 @@ function phploc_eval_gitcommit($repo_path, $git_commit) {
 
       $phploc_result_delta->save();
     }
+  }
+}
+
+
+/**
+ * Implements hook_query_alter().
+ */
+function phploc_query_alter(&$query) {
+  if($query->hasTag('project_qa_complexity')){ 
+
+    // This is the query ultimately needed:
+  
+    /** 
+     * select project_qa_repo.name, phploc_result.ccnByLloc, phploc_result.ccnByNom, project_qa_gitcommit.timestamp
+     * from project_qa_gitcommit
+     * inner join project_qa_repo on project_qa_gitcommit.pid=project_qa_repo.pid
+     * inner join phploc_result on project_qa_gitcommit.gcid=phploc_result.gcid
+     * inner join (
+     *   select max(timestamp) as max_t, pid from project_qa_gitcommit group by pid
+     * ) max_t
+     * on max_t.max_t = project_qa_gitcommit.timestamp;
+     */
+
+    $subquery = db_select('project_qa_gitcommit', 'gc');
+    $subquery->fields('gc', array('gcid', 'pid', 'timestamp'));
+    $subquery->addExpression('MAX(timestamp)', 'max_t');
+    $subquery->groupBy('gc.pid');
+    $query->addJoin('INNER', $subquery, 'sq', 'sq.max_t=project_qa_gitcommit_phploc_result.timestamp');
   }
 }
