@@ -1,6 +1,6 @@
 name = Project QA Git Commit
 description = Custom entity type for storing meta information about a git commit.
 core = 7.x
-package = Project QA
+package = Development
 
 dependencies[] = entity

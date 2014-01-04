@@ -1,7 +1,7 @@
 name = PHPLOC
 description = Perform PHPLOC evaluations on code.
 core = 7.x
-package = Project QA
+package = Development
 
 dependencies[] = project_qa
 dependencies[] = composer_manager

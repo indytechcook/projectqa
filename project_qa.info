@@ -1,7 +1,7 @@
 name = Project QA
 description = Assist in the evaluation of code
 core = 7.x
-package = Project QA
+package = Development
 
 dependencies[] = entity
 dependencies[] = project_qa_repo
