@@ -12,8 +12,8 @@ function projectqa_phploc_result_delta_entity_info() {
   return array(
     'projectqa_phploc_result_delta' => array(
       'label' => t('PHPLOC Result Delta'),
-      'entity class' => 'PhplocResultDelta',
-      'controller class' => 'PhplocResultDeltaController',
+      'entity class' => 'ProjectqaPhplocResultDelta',
+      'controller class' => 'ProjectqaPhplocResultDeltaController',
       'base table' => 'projectqa_phploc_result_delta',
       'uri callback' => 'projectqa_phploc_result_delta_uri',
       'fieldable' => TRUE,
@@ -368,9 +368,9 @@ function projectqa_phploc_result_delta_permission() {
 
 
 /**
- * PhplocResultDelta class.
+ * ProjectqaPhplocResultDelta class.
  */
-class PhplocResultDelta extends Entity {
+class ProjectqaPhplocResultDelta extends Entity {
 
   /**
    * The default label.
@@ -395,6 +395,6 @@ class PhplocResultDelta extends Entity {
 
 
 /**
- * PhplocResultDeltaController class
+ * ProjectqaPhplocResultDeltaController class
  */
-class PhplocResultDeltaController extends EntityAPIController {}
+class ProjectqaPhplocResultDeltaController extends EntityAPIController {}
