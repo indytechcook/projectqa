@@ -1,6 +1,0 @@
-name = Project QA Repo
-description = Custom entity type for storing what project repos will be evaluated.
-core = 7.x
-package = Development
-
-dependencies[] = entity

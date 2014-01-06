@@ -1,7 +1,0 @@
-<?php
-/**
- * @file
- * Code for the phploc_views feature.
- */
-
-include_once 'phploc_views.features.inc';

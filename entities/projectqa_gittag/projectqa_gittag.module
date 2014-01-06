@@ -1,0 +1,141 @@
+<?php
+
+/**
+ * @file
+ * ProjectQA Git Tag entity code.
+ */
+
+/**
+ * Implements hook_entity_info().
+ */
+function projectqa_gittag_entity_info() {
+  return array(
+    'projectqa_gittag' => array(
+      'label' => t('ProjectQA Git Tag'),
+      'entity class' => 'ProjectQAGitTag',
+      'controller class' => 'ProjectQAGitTagController',
+      'base table' => 'projectqa_gittag',
+      'uri callback' => 'projectqa_gittag_uri',
+      'fieldable' => TRUE,
+      'entity keys' => array(
+        'id' => 'gtid',
+      ),
+      'static cache' => TRUE,
+      'module' => 'projectqa_gittag',
+      'views controller class' => 'EntityDefaultViewsController',
+    ),
+  );
+}
+
+
+/**
+ * Implements hook_entity_property_info().
+ */
+function projectqa_gittag_entity_property_info() {
+  $info = array();
+  $properties = &$info['projectqa_gittag']['properties'];
+
+  $properties['gtid'] = array(
+    'label' => 'Git tag ID',
+    'description' => t('The unique ID for the git tag.'),
+    'type' => 'integer',
+    'schema field' => 'gcid',
+  );
+  $properties['gcid'] = array(
+    'label' => 'SHA1',
+    'description' => t('The id of the git commit.'),
+    'type' => 'integer',
+    'schema field' => 'sha1',
+  );
+  $properties['timestamp'] = array(
+    'label' => 'Timestamp',
+    'description' => t('The Unix timestamp for the git tag.'),
+    'type' => 'date',
+    'schema field' => 'timestamp',
+  );
+  $properties['tagname'] = array(
+    'label' => 'Author',
+    'description' => t('The name of the git tag.'),
+    'type' => 'text',
+    'schema field' => 'tagname',
+  );
+  $properties['tagger'] = array(
+    'label' => 'Tagger',
+    'description' => t('The person who created the tag.'),
+    'type' => 'text',
+    'schema field' => 'tagger',
+  );
+  return $info;
+}
+
+
+/**
+ * Access callback.
+ */
+function projectqa_gittag_access($op, $projectqa_gittag, $account = NULL, $entity_type = NULL) {
+  global $user;
+  if (!isset($account)) {
+    $account = $user;
+  }
+  switch ($op) {
+    case 'create':
+      return user_access('administer projectqa_gittag entities', $account)
+          || user_access('create projectqa_gittag entities', $account);
+    case 'view':
+      return user_access('administer projectqa_gittag entities', $account)
+          || user_access('view projectqa_gittag entities', $account);
+  }
+}
+
+
+/**
+ * Implements hook_permission().
+ */
+function projectqa_gittag_permission() {
+  $permissions = array(
+    'create projectqa_gittag entities' => array(
+      'title' => t('Create projectqa_gittag'),
+      'description' => t('Allows users to create projectqa_gittag.'),
+      'restrict access' => TRUE,
+    ),
+    'view projectqa_gittag entities' => array(
+      'title' => t('View projectqa_gittag'),
+      'description' => t('Allows users to view projectqa_gittag.'),
+      'restrict access' => TRUE,
+    ),
+  );
+  return $permissions;
+}
+
+
+/**
+ * ProjectQAGitTag class.
+ */
+class ProjectQAGitTag extends Entity {
+
+  /**
+   * The default label.
+   *
+   * @return int
+   *   projectqa_gittag id
+   */
+  protected function defaultLabel() {
+    return $this->gcid;
+  }
+
+  /**
+   * The default URI.
+   *
+   * @return array
+   *   An array containing the path to the projectqa_gittag
+   */
+  protected function defaultUri() {
+    return array('path' => 'projectqa_gittag/' . $this->identifier());
+  }
+}
+
+
+/**
+ * ProjectQAProjectController class
+ */
+class ProjectQAGitTagController extends EntityAPIController {}

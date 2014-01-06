@@ -1,0 +1,6 @@
+name = ProjectQA Git Tag
+description = Custom entity type for storing git tag data.
+core = 7.x
+package = Development
+
+dependencies[] = entity

@@ -1,0 +1,113 @@
+<?php
+/**
+ * @file
+ * Logic pertaining to PHPLOC
+ */
+
+use SebastianBergmann\FinderFacade\FinderFacade;
+use SebastianBergmann\PHPLOC\Analyser;
+
+
+/**
+ * Performs PHPLOC on a commit.
+ *
+ * @param string $repo_path
+ *   The system path where the repo is located.
+ *
+ * @param string $git_commit
+ *   The hash of the commit to process.
+ */
+function projectqa_phploc_eval_gitcommit($repo_path, $git_commit) {
+  composer_manager_register_autoloader();
+
+  $excludes = array();
+  $names = array(
+    '*.php',
+    '*.info',
+    '*.module',
+    '*.install',
+    '*.inc',
+  );
+  $names_exclude = array();
+
+  // Look for files to evaluate.
+  $directories = array();
+  $directory = realpath($repo_path);
+  if ($directory) {
+    $directories[] = $directory;
+  }
+  $finder = new FinderFacade($directories, $excludes, $names, $names_exclude);
+  $files  = $finder->findFiles();
+
+  // Eval the code.
+  $analyser = new Analyser();
+  $data = $analyser->countFiles($files, TRUE);
+
+  $projectqa_phploc_result = entity_create('projectqa_phploc_result', $data);
+  $projectqa_phploc_result->gcid = $git_commit->gcid;
+  $projectqa_phploc_result->save();
+
+  // Generate the delta values.
+  $parent_hash = projectqa_get_parent_hash($repo_path, $git_commit->sha1);
+
+  if (count($parent_hash) > 0) {
+    // Grab the parent hash data.
+    $query = db_select('projectqa_phploc_result', 'pr')
+      ->fields('pr')
+      ->fields('pqgc', array('sha1'))
+      ->condition('pqgc.sha1', $parent_hash[0], '=');
+    $query->join('projectqa_gitcommit', 'pqgc', 'pqgc.gcid = pr.gcid');
+    $result = $query->execute();
+
+    $previous_data = $result->fetchAll();
+
+    if (count($previous_data) > 0) {
+      foreach (array_keys($data) as $key) {
+        $delta = $data[$key] - $previous_data[0]->$key;
+        $delta_key = $key . '_delta';
+        $data_delta[$delta_key] = $delta;
+      }
+
+      $projectqa_phploc_result_delta = entity_create('projectqa_phploc_result_delta', $data_delta);
+      // print_r($projectqa_phploc_result_delta);
+      $projectqa_phploc_result_delta->gcid = $git_commit->gcid;
+      $projectqa_phploc_result_delta->parent_gcid = $previous_data[0]->gcid;
+
+      $projectqa_phploc_result_delta->save();
+    }
+  }
+}
+
+
+/**
+ * Implements hook_query_alter().
+ */
+function projectqa_phploc_query_alter(&$query) {
+  if ($query->hasTag('projectqa_complexity')) {
+
+    /*
+     * This is the query ultimately needed:
+     *
+     * select projectqa_repo.name, projectqa_phploc_result.ccnByLloc,
+     *   projectqa_phploc_result.ccnByNom, projectqa_gitcommit.timestamp
+     * from projectqa_gitcommit
+     * inner join projectqa_repo
+     *   on projectqa_gitcommit.pid=projectqa_repo.pid
+     * inner join projectqa_phploc_result
+     *   on projectqa_gitcommit.gcid=projectqa_phploc_result.gcid
+     * inner join (
+     *   select max(timestamp) as max_t, pid
+     *   from projectqa_gitcommit
+     *   group by pid
+     * ) max_t
+     * on max_t.max_t = projectqa_gitcommit.timestamp;
+     */
+
+    $subquery = db_select('projectqa_gitcommit', 'gc');
+    $subquery->fields('gc', array('gcid', 'pid', 'timestamp'));
+    $subquery->addExpression('MAX(timestamp)', 'max_t');
+    $subquery->groupBy('gc.pid');
+    $query->addJoin('INNER', $subquery, 'sq',
+      'sq.max_t=projectqa_gitcommit_projectqa_phploc_result.timestamp');
+  }
+}

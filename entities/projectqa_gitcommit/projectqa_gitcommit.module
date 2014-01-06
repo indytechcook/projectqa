@@ -1,0 +1,142 @@
+<?php
+
+/**
+ * @file
+ * ProjectQA Git Commit entity code.
+ */
+
+/**
+ * Implements hook_entity_info().
+ */
+function projectqa_gitcommit_entity_info() {
+  return array(
+    'projectqa_gitcommit' => array(
+      'label' => t('ProjectQA Git Commit'),
+      'entity class' => 'ProjectQAGitCommit',
+      'controller class' => 'ProjectQAGitCommitController',
+      'base table' => 'projectqa_gitcommit',
+      'uri callback' => 'projectqa_gitcommit_uri',
+      'fieldable' => TRUE,
+      'entity keys' => array(
+        'id' => 'gcid',
+      ),
+      'static cache' => TRUE,
+      'module' => 'projectqa_gitcommit',
+      'views controller class' => 'EntityDefaultViewsController',
+    ),
+  );
+}
+
+
+/**
+ * Implements hook_entity_property_info().
+ */
+function projectqa_gitcommit_entity_property_info() {
+  $info = array();
+  $properties = &$info['projectqa_gitcommit']['properties'];
+
+  $properties['gcid'] = array(
+    'label' => 'Git commit ID',
+    'description' => t('The unique ID for the git commit.'),
+    'type' => 'integer',
+    'schema field' => 'gcid',
+  );
+  $properties['sha1'] = array(
+    'label' => 'SHA1',
+    'description' => t('The sha1 of the git commit'),
+    'type' => 'integer',
+    'schema field' => 'sha1',
+  );
+  $properties['pid'] = array(
+    'label' => 'Project ID',
+    'description' => t('The project repo id.'),
+    'type' => 'projectqa_repo',
+    'schema field' => 'pid',
+  );
+  $properties['timestamp'] = array(
+    'label' => 'Timestamp',
+    'description' => t('The Unix timestamp for the git commit.'),
+    'type' => 'date',
+    'schema field' => 'timestamp',
+  );
+  $properties['author'] = array(
+    'label' => 'Author',
+    'description' => t('The author of the git commit.'),
+    'type' => 'text',
+    'schema field' => 'author',
+  );
+
+  return $info;
+}
+
+
+/**
+ * Access callback.
+ */
+function projectqa_gitcommit_access($op, $projectqa_gitcommit, $account = NULL, $entity_type = NULL) {
+  global $user;
+  if (!isset($account)) {
+    $account = $user;
+  }
+  switch ($op) {
+    case 'create':
+      return user_access('administer projectqa_gitcommit entities', $account)
+          || user_access('create projectqa_gitcommit entities', $account);
+    case 'view':
+      return user_access('administer projectqa_gitcommit entities', $account)
+          || user_access('view projectqa_gitcommit entities', $account);
+  }
+}
+
+
+/**
+ * Implements hook_permission().
+ */
+function projectqa_gitcommit_permission() {
+  $permissions = array(
+    'create projectqa_gitcommit entities' => array(
+      'title' => t('Create projectqa_gitcommit'),
+      'description' => t('Allows users to create projectqa_gitcommit.'),
+      'restrict access' => TRUE,
+    ),
+    'view projectqa_gitcommit entities' => array(
+      'title' => t('View projectqa_gitcommit'),
+      'description' => t('Allows users to view projectqa_gitcommit.'),
+      'restrict access' => TRUE,
+    ),
+  );
+  return $permissions;
+}
+
+
+/**
+ * ProjectQAGitCommit class.
+ */
+class ProjectQAGitCommit extends Entity {
+
+  /**
+   * The default label.
+   *
+   * @return int
+   *   projectqa_gitcommit id
+   */
+  protected function defaultLabel() {
+    return $this->gcid;
+  }
+
+  /**
+   * The default URI.
+   *
+   * @return array
+   *   An array containing the path to the projectqa_gitcommit
+   */
+  protected function defaultUri() {
+    return array('path' => 'projectqa_gitcommit/' . $this->identifier());
+  }
+}
+
+
+/**
+ * ProjectQAProjectController class
+ */
+class ProjectQAGitCommitController extends EntityAPIController {}

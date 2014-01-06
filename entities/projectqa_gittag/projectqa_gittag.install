@@ -1,0 +1,50 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function projectqa_gittag_schema() {
+  $schema['projectqa_gittag'] = array(
+    'description' => 'The table for git tag info.',
+    'fields' => array(
+      'gtid' => array(
+        'description' => 'The unique ID for the git tag.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'gcid' => array(
+        'description' => 'The id of the git commit.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'timestamp' => array(
+        'description' => 'The Unix timestamp for the git tag.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'tagname' => array(
+        'description' => 'The tag name.',
+        'type' => 'varchar',
+        'length' => 256,
+        'not null' => TRUE,
+      ),
+      'tagger' => array(
+        'description' => 'The person who created the tag.',
+        'type' => 'varchar',
+        'length' => 256,
+        'not null' => TRUE,
+      ),
+    ),
+    'primary key' => array('gtid'),
+  );
+
+  return $schema;
+}

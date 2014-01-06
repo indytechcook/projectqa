@@ -1,0 +1,9 @@
+name = ProjectQA
+description = Assist in the evaluation of code
+core = 7.x
+package = Development
+
+dependencies[] = entity
+dependencies[] = projectqa_repo
+dependencies[] = projectqa_gitcommit
+dependencies[] = projectqa_gittag

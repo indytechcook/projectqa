@@ -1,0 +1,100 @@
+<?php
+
+/**
+ * @file
+ * ProjectQA Project entity code.
+ */
+
+/**
+ * Implements hook_entity_info().
+ */
+function projectqa_repo_entity_info() {
+  return array(
+    'projectqa_repo' => array(
+      'label' => t('ProjectQA Project'),
+      'entity class' => 'ProjectQARepo',
+      'controller class' => 'ProjectQARepoController',
+      'base table' => 'projectqa_repo',
+      'uri callback' => 'projectqa_repo_uri',
+      'fieldable' => TRUE,
+      'entity keys' => array(
+        'id' => 'pid',
+      ),
+      'static cache' => TRUE,
+      'module' => 'projectqa_repo',
+      'views controller class' => 'EntityDefaultViewsController',
+    ),
+  );
+}
+
+
+/**
+ * Access callback.
+ */
+function projectqa_repo_access($op, $projectqa_repo, $account = NULL, $entity_type = NULL) {
+  global $user;
+  if (!isset($account)) {
+    $account = $user;
+  }
+  switch ($op) {
+    case 'create':
+      return user_access('administer projectqa_repo entities', $account)
+          || user_access('create projectqa_repo entities', $account);
+    case 'view':
+      return user_access('administer projectqa_repo entities', $account)
+          || user_access('view projectqa_repo entities', $account);
+  }
+}
+
+
+/**
+ * Implements hook_permission().
+ */
+function projectqa_repo_permission() {
+  $permissions = array(
+    'create projectqa_repo entities' => array(
+      'title' => t('Create projectqa_repo'),
+      'description' => t('Allows users to create projectqa_repo.'),
+      'restrict access' => TRUE,
+    ),
+    'view projectqa_repo entities' => array(
+      'title' => t('View projectqa_repo'),
+      'description' => t('Allows users to view projectqa_repo.'),
+      'restrict access' => TRUE,
+    ),
+  );
+  return $permissions;
+}
+
+
+/**
+ * ProjectQARepo class.
+ */
+class ProjectQARepo extends Entity {
+
+  /**
+   * The default label.
+   *
+   * @return int
+   *   projectqa_repo id
+   */
+  protected function defaultLabel() {
+    return $this->prid;
+  }
+
+  /**
+   * The default URI.
+   *
+   * @return array
+   *   An array containing the path to the projectqa_repo
+   */
+  protected function defaultUri() {
+    return array('path' => 'projectqa_repo/' . $this->identifier());
+  }
+}
+
+
+/**
+ * ProjectQARepoController class
+ */
+class ProjectQARepoController extends EntityAPIController {}
