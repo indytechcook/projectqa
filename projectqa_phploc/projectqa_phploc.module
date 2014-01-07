@@ -14,8 +14,8 @@ use SebastianBergmann\PHPLOC\Analyser;
  * @param string $repo_path
  *   The system path where the repo is located.
  *
- * @param string $git_commit
- *   The hash of the commit to process.
+ * @param object $git_commit
+ *   The git commit to process.
  */
 function projectqa_phploc_eval_gitcommit($repo_path, $git_commit) {
   composer_manager_register_autoloader();
