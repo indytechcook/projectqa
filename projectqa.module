@@ -19,23 +19,11 @@ module_load_include('inc', 'projectqa', 'projectqa.git');
  *   The list of projects.
  */
 function projectqa_get_projects($header = NULL) {
-  $query = db_select('projectqa_repo', 'p')
-    ->fields('p',
-      array(
-        'pid',
-        'name',
-        'url',
-        'branch',
-      )
-    )
-    ->extend('TableSort');
+  $query = 'SELECT pid, name, url, branch FROM projectqa_repo';
+  $result = db_query($query);
+  $projects = $result->fetchAll();
 
-  if ($header) {
-    $query->orderByHeader($header);
-  }
-  $result = $query->execute();
-
-  return $result;
+  return $projects;
 }
 
 
@@ -46,8 +34,7 @@ function projectqa_get_projects($header = NULL) {
  *   The system path to the repos location.
  */
 function projectqa_get_filepath() {
-  // TODO:
-  $path = '/tmp/projectqa';
+  $path = variable_get('projectqa_filepath', $default = '/tmp/projectqa');
 
   return $path;
 }
@@ -100,14 +87,11 @@ function projectqa_prep_repo($project, $repo_path) {
  */
 function projectqa_walk_repo($project, $repo_path) {
   drush_print(t('walking repo'), 1);
+
   // Get the currently saved git commits.
-  $query = db_select('projectqa_gitcommit', 'pqgc')
-    ->fields('pqgc', array('sha1'))
-    ->condition('pid', $project->pid, '=')
-    ->orderBy('timestamp', 'DESC');
-  $result = $query->execute();
-  $processed_commits = $result->fetchAllAssoc('sha1');
-  $processed_commits = array_keys($processed_commits);
+  $query = 'SELECT gc.sha1 FROM {projectqa_gitcommit} AS gc WHERE gc.pid = :pid ORDER BY gc.timestamp DESC';
+  $result = db_query($query, array(':pid' => $project->pid));
+  $processed_commits = $result->fetchCol();
 
   $log_options[] = '--no-merges';
   $log_options[] = '--date-order';
@@ -145,7 +129,6 @@ function projectqa_walk_repo($project, $repo_path) {
       )
     );
 
-    // TODO: Calculate the code diff size.
     $git_commit_data = array(
       'sha1' => $commit_hash,
       'pid' => $project->pid,
@@ -187,15 +170,23 @@ function projectqa_process_git_revisions($git_log) {
   $num_lines  = count($git_log);
   $revisions = array();
 
+  // For each line in the log
   for ($i = 0; $i < $num_lines; $i++) {
+
+    // Convert the line to an array to process.
     $tmp = explode(' ', $git_log[$i]);
 
+    // Line has just commit info.
     if (count($tmp) == 2 && $tmp[0] == 'commit') {
       $sha1 = $tmp[1];
     }
+
+    // Line has author info.
     elseif (count($tmp) == 4 && $tmp[0] == 'Author:') {
       $author = implode(' ', array_slice($tmp, 1));
     }
+
+    // Line has author, date, and message.
     elseif (count($tmp) == 9 && $tmp[0] == 'Date:') {
       $revisions[$sha1] = array(
         'author'  => $author,
@@ -234,15 +225,9 @@ function projectqa_process_git_tags($repo_path, $pid) {
     $tag_data[$data[0]] = $data[1];
   }
 
-  // Get all processed tags.
-  $query = db_select('projectqa_gittag', 'pqgt')
-    ->fields('pqgt', array('gcid', 'tagname'))
-    ->fields('pqgc', array('sha1'))
-    ->condition('pid', $pid, '=');
-  $query->innerJoin('projectqa_gitcommit', 'pqgc', 'pqgc.gcid = pqgt.gcid');
-  $results = $query->execute();
-
-  $processed_tags = $results->fetchAllAssoc('tagname');
+  $query = 'SELECT gt.gcid, gt.tagname, gc.sha1 FROM {projectqa_gittag} gt INNER JOIN {projectqa_gitcommit} AS gc ON gc.gcid = gt.gcid WHERE pid = :pid';
+  $result = db_query($query, array(':pid' => $pid));
+  $processed_tags = $result->fetchAllAssoc('tagname');
 
   foreach ($tag_data as $key => $value) {
     $data = array();
@@ -252,9 +237,7 @@ function projectqa_process_git_tags($repo_path, $pid) {
       // Only save tags that point to commits we're tracking.
       if (isset($gcid)) {
         $data['gcid'] = $gcid;
-        // TODO:
         $data['tagger'] = 'person';
-        // TODO:
         $data['timestamp'] = 0;
         $data['tagname'] = $value;
 
@@ -263,8 +246,6 @@ function projectqa_process_git_tags($repo_path, $pid) {
       }
     }
   }
-
-  // TODO: remove deleted tags.
 }
 
 
@@ -278,10 +259,9 @@ function projectqa_process_git_tags($repo_path, $pid) {
  *   The ID.
  */
 function projectqa_get_commit_id($hash) {
-  $query = db_select('projectqa_gitcommit', 'pqgc')
-    ->fields('pqgc', array('gcid', 'sha1'))
-    ->condition('pqgc.sha1', $hash, '=');
-  $response = $query->execute();
-  $result = $response->fetchAssoc();
-  return $result['gcid'];
+  $query = 'SELECT gcid, sha1 FROM projectqa_gitcommit WHERE sha1 = :hash';
+  $result = db_query($query, array(':hash' => $hash));
+  $commit = $result->fetchAssoc();
+
+  return $commit['gcid'];
 }

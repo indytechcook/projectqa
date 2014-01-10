@@ -69,7 +69,6 @@ function projectqa_phploc_eval_gitcommit($repo_path, $git_commit) {
       }
 
       $projectqa_phploc_result_delta = entity_create('projectqa_phploc_result_delta', $data_delta);
-      // print_r($projectqa_phploc_result_delta);
       $projectqa_phploc_result_delta->gcid = $git_commit->gcid;
       $projectqa_phploc_result_delta->parent_gcid = $previous_data[0]->gcid;
 
