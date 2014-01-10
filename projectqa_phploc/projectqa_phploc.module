@@ -51,14 +51,9 @@ function projectqa_phploc_eval_gitcommit($repo_path, $git_commit) {
   $parent_hash = projectqa_get_parent_hash($repo_path, $git_commit->sha1);
 
   if (count($parent_hash) > 0) {
-    // Grab the parent hash data.
-    $query = db_select('projectqa_phploc_result', 'pr')
-      ->fields('pr')
-      ->fields('pqgc', array('sha1'))
-      ->condition('pqgc.sha1', $parent_hash[0], '=');
-    $query->join('projectqa_gitcommit', 'pqgc', 'pqgc.gcid = pr.gcid');
-    $result = $query->execute();
-
+    // Grab the parent hash data (previous commit data).
+    $query = 'SELECT pr.*, gc.sha1 FROM projectqa_phploc_result AS pr, projectqa_gitcommit AS gc WHERE gc.gcid = pr.gcid AND gc.sha1 = :sha1';
+    $result = db_query($query, array(':sha1' => $parent_hash[0]));
     $previous_data = $result->fetchAll();
 
     if (count($previous_data) > 0) {
