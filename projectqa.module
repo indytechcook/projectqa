@@ -34,7 +34,7 @@ function projectqa_get_projects($header = NULL) {
  *   The system path to the repos location.
  */
 function projectqa_get_filepath() {
-  $path = variable_get('projectqa_filepath', $default = '/tmp/projectqa');
+  $path = variable_get('projectqa_filepath', '/tmp/projectqa');
 
   return $path;
 }
@@ -170,7 +170,7 @@ function projectqa_process_git_revisions($git_log) {
   $num_lines  = count($git_log);
   $revisions = array();
 
-  // For each line in the log
+  // For each line in the log.
   for ($i = 0; $i < $num_lines; $i++) {
 
     // Convert the line to an array to process.
