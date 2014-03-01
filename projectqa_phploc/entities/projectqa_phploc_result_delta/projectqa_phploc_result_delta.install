@@ -374,3 +374,37 @@ function projectqa_phploc_result_delta_schema_alter(&$schema) {
     'description' => 'Enable phploc processing.',
   );
 }
+
+/**
+ * Implements hook_install().
+ */
+function projectqa_phploc_install() {
+  // add the fields to the projectqa_repo
+  $schema = array(
+    'type' => 'int',
+    'not null' => TRUE,
+    'default' => 1,
+    'description' => 'Enable phploc processing.',
+  );
+  db_add_field("projectqa_repo", "phploc", $schema);
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function projectqa_phploc_uninstall() {
+  db_drop_field("projectqa_repo", "phploc");
+}
+
+/**
+ * Implements hook_update_N
+ */
+function projectqa_phploc_update_7101(&$sand) {
+  $schema = array(
+    'type' => 'int',
+    'not null' => TRUE,
+    'default' => 1,
+    'description' => 'Enable phploc processing.',
+  );
+  db_add_field("projectqa_repo", "phploc", $schema);
+}
