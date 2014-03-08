@@ -1,0 +1,31 @@
+<?php
+
+/**
+ * Implements hook_webhook_unserializer().
+ */
+function projectqa_webhook_webhook_unserializer() {
+  return array(
+    'projectqa' => array(
+      'title' => t('ProjectQA Unserialzer'),
+      'handler' => array(
+        'class' => 'ProjectQAWebHookUnserialize',
+        'file' => 'lib/ProjectQAWebHookUnserialize.php'
+      ),
+    ),
+  );
+}
+
+/**
+ * Implements hook_webhook_processor().
+ */
+function projectqa_webhook_webhook_processor() {
+  return array(
+    'projectqa' => array(
+      'title' => t('ProjectQA Processor'),
+      'handler' => array(
+        'class' => 'ProjectQAWebHookProcessor',
+        'file' => 'lib/ProjectQAWebHookProcessor.php'
+      )
+    )
+  );
+}

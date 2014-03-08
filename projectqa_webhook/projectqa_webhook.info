@@ -1,0 +1,8 @@
+name = ProjectQA Webhook Integration
+description = Add a Webhook for integration into project QA
+core = 7.x
+package = Development
+
+dependencies[] = webhook
+dependencies[] = webhook_extras
+dependencies[] = projectqa
