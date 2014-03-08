@@ -50,10 +50,21 @@ function projectqa_walk_projects() {
   foreach ($projects as $project) {
     drush_print(t('Processing @name', array('@name' => $project->name)), 0);
 
-    $repo_path = $filepath . '/' . $project->name;
-    projectqa_prep_repo($project, $repo_path);
-    projectqa_walk_repo($project, $repo_path);
+    projectqa_process_project($project);
   }
+}
+
+/**
+ * Processes a single project
+ *
+ * @param $repo ProjectQARepo
+ */
+function projectqa_process_project($repo) {
+  $filepath = projectqa_get_filepath();
+
+  $repo_path = $filepath . '/' . $repo->name;
+  projectqa_prep_repo($repo, $repo_path);
+  projectqa_walk_repo($repo, $repo_path);
 }
 
 

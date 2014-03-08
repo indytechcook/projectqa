@@ -11,7 +11,7 @@
 function projectqa_repo_entity_info() {
   return array(
     'projectqa_repo' => array(
-      'label' => t('ProjectQA Project'),
+      'label' => t('ProjectQA Repo'),
       'entity class' => 'ProjectQARepo',
       'controller class' => 'ProjectQARepoController',
       'base table' => 'projectqa_repo',
@@ -19,10 +19,18 @@ function projectqa_repo_entity_info() {
       'fieldable' => TRUE,
       'entity keys' => array(
         'id' => 'pid',
+        'label' => 'name',
       ),
       'static cache' => TRUE,
       'module' => 'projectqa_repo',
       'views controller class' => 'EntityDefaultViewsController',
+      'access callback' => 'projectqa_repo_access',
+      'admin ui' => array(
+        'path' => 'admin/content/projectqa-repos',
+        'controller class' => 'ProjectQAUIController',
+        'menu wildcard' => '%projectqa_repo',
+        'file' => 'projectqa_repo.admin.inc',
+      ),
     ),
   );
 }
@@ -31,7 +39,7 @@ function projectqa_repo_entity_info() {
 /**
  * Access callback.
  */
-function projectqa_repo_access($op, $projectqa_repo, $account = NULL, $entity_type = NULL) {
+function projectqa_repo_access($op, $projectqa_repo = NULL, $account = NULL) {
   global $user;
   if (!isset($account)) {
     $account = $user;
@@ -43,6 +51,9 @@ function projectqa_repo_access($op, $projectqa_repo, $account = NULL, $entity_ty
     case 'view':
       return user_access('administer projectqa_repo entities', $account)
           || user_access('view projectqa_repo entities', $account);
+    case 'update':
+      return user_access('administer projectqa_repo entities', $account)
+      || user_access('edit projectqa_repo entities', $account);
   }
 }
 
@@ -62,15 +73,134 @@ function projectqa_repo_permission() {
       'description' => t('Allows users to view projectqa_repo.'),
       'restrict access' => TRUE,
     ),
+    'edit projectqa_repo entities' => array(
+      'title' => t('Edit projectqa_repo'),
+      'description' => t('Allows users to edit projectqa_repo.'),
+      'restrict access' => TRUE,
+    ),
   );
   return $permissions;
 }
 
+/**
+ * Load the ProjectQA Repo
+ *
+ * @param $repo_id
+ * @param $reset
+ * @return ProjectQARepo
+ */
+function projectqa_repo_load($repo_id, $reset = FALSE) {
+  $repos = projectqa_repo_multiple(array($repo_id), array(), $reset);
+  return reset($repos);
+}
+
+/**
+ * Load multiple repos based on certain conditions.
+ *
+ * @param $repo_ids
+ *   An array of repo IDs.
+ * @param $conditions array
+ *   An array of conditions to match against the {projectqa_repo} table.
+ * @param $reset
+ *   A boolean indicating that the internal cache should be reset.
+ * @return
+ *   An array of model objects, indexed by model_id.
+ *
+ * @see entity_load()
+ * @see projectqa_repo_load()
+ */
+function projectqa_repo_multiple($repo_ids = array(), $conditions = array(), $reset = FALSE) {
+  return entity_load('projectqa_repo', $repo_ids, $conditions, $reset);
+}
+
+
+/**
+ * Deletes a repo.
+ */
+function projectqa_repo_delete(ProjectQARepo $repo) {
+  $repo->delete();
+}
+
+
+/**
+ * Delete multiple repos.
+ *
+ * @param $repo_ids
+ *   An array of repo IDs.
+ */
+function projectqa_repo_delete_multiple(array $repo_ids) {
+  entity_get_controller('projectqa_repo')->delete($repo_ids);
+}
+
+
+/**
+ * Create a repo object.
+ */
+function projectqa_repo_create($values = array()) {
+  return entity_get_controller('projectqa_repo')->create($values);
+}
+
+
+/**
+ * Saves a repo to the database.
+ *
+ * @param $repo ProjectQARepo
+ *   The model object.
+ * @return bool
+ */
+function projectqa_repo_save(ProjectQARepo $repo) {
+  return entity_save('projectqa_repo', $repo);
+}
+
+/**
+ * URI callback for repos
+ */
+function projectqa_repo_uri(ProjectQARepo $repo){
+  return array(
+    'path' => 'projectqa_repo/' . $repo->identifier(),
+  );
+}
+
+
+/**
+ * Menu title callback for showing individual entities
+ */
+function projectqa_repo_page_title(ProjectQARepo $repo){
+  return $repo->name;
+}
+
+
+/**
+ * Sets up content to show an individual repo
+ * @todo - get rid of drupal_set_title();
+ */
+function projectqa_repo_page_view($repo, $view_mode = 'full') {
+  $controller = entity_get_controller('projectqa_repo');
+  $content = $controller->view(array($repo->pid => $repo));
+  drupal_set_title($repo->name);
+  return $content;
+}
+
+/**
+ * Implement hook_theme().
+ */
+function projectqa_repo_theme() {
+  return array(
+    'projectqa_repo' => array(
+      'render element' => 'elements',
+      'template' => 'projectqa_repo',
+    ),
+  );
+}
 
 /**
  * ProjectQARepo class.
  */
 class ProjectQARepo extends Entity {
+
+  public function __construct($values = array()) {
+    parent::__construct($values, 'projectqa_repo');
+  }
 
   /**
    * The default label.
@@ -79,7 +209,7 @@ class ProjectQARepo extends Entity {
    *   projectqa_repo id
    */
   protected function defaultLabel() {
-    return $this->prid;
+    return $this->name;
   }
 
   /**
@@ -97,4 +227,16 @@ class ProjectQARepo extends Entity {
 /**
  * ProjectQARepoController class
  */
-class ProjectQARepoController extends EntityAPIController {}
+class ProjectQARepoController extends EntityAPIController {
+  /**
+   * Overriding the buldContent function to add entity specific fields
+   */
+  public function buildContent($entity, $view_mode = 'full', $langcode = NULL, $content = array()) {
+    $content = parent::buildContent($entity, $view_mode, $langcode, $content);
+    //$content['projectqa_repo_data'] =  array(
+    //  '#markup' => theme('projectqa_repo_data', array('projectqa_repo_data' => check_plain($entity->data['sample_data']), 'model' => $entity)),
+    //);
+
+    return $content;
+  }
+}
