@@ -1,6 +1,0 @@
-name = ProjectQA PHPLOC Result
-description = Custom entity type for storing PHPLOC result data
-core = 7.x
-package = Development
-
-dependencies[] = entity

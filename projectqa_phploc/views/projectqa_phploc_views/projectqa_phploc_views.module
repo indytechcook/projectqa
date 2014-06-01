@@ -1,7 +1,0 @@
-<?php
-/**
- * @file
- * Code for the projectqa_phploc_views feature.
- */
-
-include_once 'projectqa_phploc_views.features.inc';
